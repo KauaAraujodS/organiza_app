@@ -18,9 +18,13 @@ const items = [
 export default function MobileMenuDrawer({
   open,
   onClose,
+  theme,
+  onToggleTheme,
 }: {
   open: boolean;
   onClose: () => void;
+  theme: "dark" | "light";
+  onToggleTheme: () => void;
 }) {
   const pathname = usePathname();
 
@@ -39,12 +43,17 @@ export default function MobileMenuDrawer({
       <div className={styles.drawer}>
         <div className={styles.drawerHead}>
           <div className={styles.drawerTitle}>Menu</div>
-          <button
-            onClick={onClose}
-            className={styles.drawerCloseBtn}
-          >
-            Fechar
-          </button>
+          <div className={styles.drawerHeadActions}>
+            <button type="button" onClick={onToggleTheme} className={styles.drawerThemeBtn}>
+              {theme === "dark" ? "Modo Claro" : "Modo Escuro"}
+            </button>
+            <button
+              onClick={onClose}
+              className={styles.drawerCloseBtn}
+            >
+              Fechar
+            </button>
+          </div>
         </div>
 
         <div className={styles.drawerList}>

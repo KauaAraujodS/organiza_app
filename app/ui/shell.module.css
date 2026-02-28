@@ -20,9 +20,9 @@
   position: sticky;
   top: 0;
   z-index: 30;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-2) 84%, transparent);
+  backdrop-filter: blur(14px);
 }
 
 .mobileTopbarHiddenDesktop {
@@ -33,7 +33,7 @@
   min-width: 0;
   flex: 1;
   overflow-x: hidden;
-  padding: 0.75rem;
+  padding: 0.9rem;
 }
 
 .sidebar {
@@ -41,9 +41,9 @@
   height: 100vh;
   width: 280px;
   flex-direction: column;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(14px);
+  border-right: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-2) 92%, transparent);
+  backdrop-filter: blur(16px) saturate(120%);
 }
 
 .brand {
@@ -59,9 +59,14 @@
   width: 2.75rem;
   place-items: center;
   border-radius: 1rem;
-  background: rgba(147, 51, 234, 0.9);
+  background: linear-gradient(145deg, var(--brand) 0%, var(--brand-2) 100%);
   color: #fff;
-  box-shadow: 0 0 40px rgba(168, 85, 247, 0.22);
+  box-shadow: 0 14px 28px color-mix(in oklab, var(--brand) 40%, transparent);
+}
+
+.brandGlyph {
+  font-size: 1.05rem;
+  line-height: 1;
 }
 
 .brandName {
@@ -71,7 +76,7 @@
 
 .brandSub {
   font-size: 0.74rem;
-  color: rgba(255, 255, 255, 0.65);
+  color: var(--text-soft);
 }
 
 .nav {
@@ -85,17 +90,19 @@
   gap: 0.75rem;
   border-radius: 0.75rem;
   padding: 0.7rem 0.9rem;
-  transition: background-color 0.18s ease;
+  border: 1px solid transparent;
+  transition: background-color 0.18s ease, border-color 0.18s ease;
 }
 
 .navItem:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: color-mix(in oklab, var(--surface-3) 65%, transparent);
+  border-color: var(--line-soft);
 }
 
 .navItemActive {
-  background: rgba(147, 51, 234, 0.25);
-  box-shadow: 0 0 30px rgba(168, 85, 247, 0.18);
-  outline: 1px solid rgba(168, 85, 247, 0.3);
+  background: color-mix(in oklab, var(--brand) 30%, var(--surface-2) 70%);
+  box-shadow: 0 10px 26px color-mix(in oklab, var(--brand) 26%, transparent);
+  border-color: color-mix(in oklab, var(--brand) 42%, transparent);
 }
 
 .navLabel {
@@ -112,7 +119,7 @@
 }
 
 .sidebarFooter {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--line-soft);
   padding: 0.9rem 0.75rem;
   display: grid;
   gap: 0.6rem;
@@ -124,15 +131,20 @@
   align-items: center;
   gap: 0.5rem;
   border-radius: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line-soft);
+  background: var(--surface-2);
   padding: 0.7rem 0.9rem;
   text-align: left;
   transition: background-color 0.18s ease;
 }
 
 .footerBtn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: color-mix(in oklab, var(--surface-3) 72%, transparent);
+}
+
+.footerText {
+  font-size: 14px;
+  color: var(--text-main);
 }
 
 .mobileHeader {
@@ -155,7 +167,7 @@
   border-radius: 0.75rem;
   display: grid;
   place-items: center;
-  background: rgba(124, 58, 237, 0.9);
+  background: linear-gradient(145deg, var(--brand) 0%, var(--brand-2) 100%);
   font-weight: 700;
 }
 
@@ -167,26 +179,39 @@
 
 .mobileBrandSub {
   font-size: 0.72rem;
-  color: #b6c2d6;
+  color: var(--text-soft);
   line-height: 1.1;
 }
 
+.mobileActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mobileThemeBtn,
 .mobileMenuBtn {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--line-soft);
   border-radius: 0.6rem;
   padding: 0.45rem 0.65rem;
   font-size: 0.85rem;
+  background: var(--surface-2);
 }
 
+.mobileThemeBtn {
+  min-width: 2.2rem;
+}
+
+.mobileThemeBtn:hover,
 .mobileMenuBtn:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: color-mix(in oklab, var(--surface-3) 72%, transparent);
 }
 
 .drawerBackdrop {
   position: fixed;
   inset: 0;
   z-index: 40;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.45);
 }
 
 .drawer {
@@ -197,8 +222,8 @@
   right: 0.75rem;
   max-width: 24rem;
   border-radius: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(2, 6, 23, 0.95);
+  border: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-2) 96%, transparent);
   backdrop-filter: blur(12px);
   padding: 0.45rem;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
@@ -211,20 +236,36 @@
   padding: 0.4rem 0.45rem 0.6rem;
 }
 
+.drawerHeadActions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 .drawerTitle {
   font-size: 0.85rem;
   font-weight: 600;
 }
 
 .drawerCloseBtn {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--line-soft);
   border-radius: 0.55rem;
   padding: 0.25rem 0.55rem;
   font-size: 0.82rem;
+  background: var(--surface-2);
 }
 
+.drawerThemeBtn {
+  border: 1px solid var(--line-soft);
+  border-radius: 0.55rem;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.8rem;
+  background: var(--surface-2);
+}
+
+.drawerThemeBtn:hover,
 .drawerCloseBtn:hover {
-  background: rgba(255, 255, 255, 0.07);
+  background: color-mix(in oklab, var(--surface-3) 72%, transparent);
 }
 
 .drawerList {
@@ -242,17 +283,48 @@
 }
 
 .drawerItem:hover {
-  border-color: rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--line-soft);
+  background: color-mix(in oklab, var(--surface-3) 72%, transparent);
 }
 
 .drawerItemActive {
-  border-color: rgba(139, 92, 246, 0.3);
-  background: rgba(139, 92, 246, 0.2);
+  border-color: color-mix(in oklab, var(--brand) 40%, transparent);
+  background: color-mix(in oklab, var(--brand) 30%, var(--surface-2) 70%);
 }
 
 .drawerLabel {
   font-size: 0.9rem;
+}
+
+:global([data-theme="light"]) .sidebar {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(247, 250, 255, 0.95) 100%);
+  box-shadow: inset -1px 0 0 rgba(15, 23, 42, 0.06);
+}
+
+:global([data-theme="light"]) .brandIcon {
+  box-shadow: 0 12px 24px rgba(109, 40, 217, 0.24);
+}
+
+:global([data-theme="light"]) .navItem {
+  color: var(--text-muted);
+}
+
+:global([data-theme="light"]) .navItem:hover {
+  background: rgba(109, 40, 217, 0.06);
+}
+
+:global([data-theme="light"]) .navItemActive {
+  color: #2b2052;
+  background: rgba(139, 92, 246, 0.2);
+  border-color: rgba(124, 58, 237, 0.24);
+}
+
+:global([data-theme="light"]) .footerBtn {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+:global([data-theme="light"]) .mobileTopbar {
+  background: rgba(255, 255, 255, 0.92);
 }
 
 @media (min-width: 768px) {

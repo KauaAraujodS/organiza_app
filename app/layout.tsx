@@ -22,9 +22,21 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const themeBootScript = `
+    (function () {
+      try {
+        var saved = localStorage.getItem('organiza_theme');
+        var prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        var theme = saved === 'light' || saved === 'dark' ? saved : (prefersLight ? 'light' : 'dark');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (_) {}
+    })();
+  `;
+
   return (
     <html lang="pt-BR">
       <body>
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
         <AuthGate>
           <AppShell>{children}</AppShell>
         </AuthGate>

@@ -12,6 +12,11 @@ type Item = {
   icon: React.ReactNode;
 };
 
+type SidebarProps = {
+  theme: "dark" | "light";
+  onToggleTheme: () => void;
+};
+
 function NavItem({
   href,
   label,
@@ -34,7 +39,7 @@ function NavItem({
   );
 }
 
-export default function Sidebar() {
+export default function Sidebar({ theme, onToggleTheme }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -120,7 +125,7 @@ export default function Sidebar() {
       {/* Brand */}
       <div className={styles.brand}>
         <div className={styles.brandIcon}>
-          <span className="text-lg" aria-hidden>
+          <span className={styles.brandGlyph} aria-hidden>
             ✦
           </span>
         </div>
@@ -148,13 +153,10 @@ export default function Sidebar() {
         <button
           className={styles.footerBtn}
           type="button"
-          onClick={() => {
-            // placeholder: modo claro/escuro (a gente implementa depois)
-            alert("Modo Claro/Escuro (vamos implementar depois)");
-          }}
+          onClick={onToggleTheme}
         >
-          <span aria-hidden>☀</span>
-          <span className="text-[14px] text-white/90">Modo Claro</span>
+          <span aria-hidden>{theme === "dark" ? "☀" : "☾"}</span>
+          <span className={styles.footerText}>{theme === "dark" ? "Modo Claro" : "Modo Escuro"}</span>
         </button>
 
         <button
@@ -163,7 +165,7 @@ export default function Sidebar() {
           type="button"
         >
           <span aria-hidden>⎋</span>
-          <span className="text-[14px] text-white/90">Sair</span>
+          <span className={styles.footerText}>Sair</span>
         </button>
       </div>
     </aside>

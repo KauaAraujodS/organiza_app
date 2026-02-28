@@ -1,14 +1,59 @@
 :root {
-  --app-bg: #05070c;
-  --app-fg: #f1f5f9;
-  --app-muted: #9eb2cc;
-  --app-border: rgba(255, 255, 255, 0.1);
-  --app-surface: rgba(2, 6, 12, 0.72);
-  --app-surface-2: rgba(12, 20, 34, 0.82);
-  --app-primary: #7c3aed;
-  --app-primary-2: #9333ea;
-  --app-success: #4ade80;
-  --app-danger: #fb7185;
-  --radius-md: 0.7rem;
-  --radius-lg: 1rem;
+  color-scheme: dark;
+
+  --bg: #04060b;
+  --bg-elev: #0b1220;
+  --surface-1: rgba(10, 15, 25, 0.72);
+  --surface-2: rgba(16, 24, 40, 0.82);
+  --surface-3: rgba(23, 34, 56, 0.92);
+  --line-soft: rgba(148, 163, 184, 0.24);
+  --line-strong: rgba(167, 139, 250, 0.62);
+  --text-main: #f8fafc;
+  --text-muted: #b8c5db;
+  --text-soft: #8fa2c0;
+  --brand: #7c3aed;
+  --brand-strong: #8b5cf6;
+  --brand-2: #a855f7;
+  --success: #34d399;
+  --danger: #fb7185;
+  --warning: #f59e0b;
+
+  --radius-sm: 0.65rem;
+  --radius-md: 0.8rem;
+  --radius-lg: 1.1rem;
+  --shadow-1: 0 14px 36px rgba(2, 6, 23, 0.34);
+  --shadow-2: 0 22px 48px rgba(2, 6, 23, 0.44);
+
+  /* compatibilidade com estilos antigos */
+  --app-bg: var(--bg);
+  --app-fg: var(--text-main);
+  --app-muted: var(--text-soft);
+  --app-border: var(--line-soft);
+  --app-surface: var(--surface-1);
+  --app-surface-2: var(--surface-2);
+  --app-primary: var(--brand);
+  --app-primary-2: var(--brand-2);
+  --app-success: var(--success);
+  --app-danger: var(--danger);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f2f5fb;
+  --bg-elev: #ffffff;
+  --surface-1: rgba(255, 255, 255, 0.92);
+  --surface-2: rgba(255, 255, 255, 0.98);
+  --surface-3: rgba(241, 245, 255, 1);
+  --line-soft: rgba(15, 23, 42, 0.12);
+  --line-strong: rgba(109, 40, 217, 0.44);
+  --text-main: #0f172a;
+  --text-muted: #1f2a44;
+  --text-soft: #5a6b86;
+  --brand: #6d28d9;
+  --brand-strong: #7c3aed;
+  --brand-2: #8b5cf6;
+  --success: #059669;
+  --danger: #e11d48;
+  --warning: #d97706;
 }
