@@ -32,6 +32,18 @@ type MetaRow = {
   icon_emoji: string | null;
 };
 
+type DriveCardView = {
+  item: DriveItem;
+  icon: string;
+  prio: string;
+  cardBg: string;
+  cardBorder: string;
+  softBg: string;
+  softBorder: string;
+  author: string | null;
+  locked: boolean;
+};
+
 const APP_FOLDER_NAME = "OrganizaApp";
 const LS_TOKEN_KEY = "organiza_google_token";
 
@@ -144,6 +156,37 @@ export default function FilesPage() {
     if (!q) return items;
     return items.filter((it) => it.name.toLowerCase().includes(q));
   }, [deferredQuery, items]);
+
+  const breadcrumbItems = useMemo(
+    () =>
+      folderStack.map((c, idx) => ({
+        id: c.id,
+        name: c.name,
+        index: idx,
+        isLast: idx === folderStack.length - 1,
+      })),
+    [folderStack]
+  );
+
+  const cardViews = useMemo<DriveCardView[]>(
+    () =>
+      filteredItems.map((it) => {
+        const meta = metaMap[it.id];
+        const color = meta?.color || "#7C3AED";
+        return {
+          item: it,
+          icon: meta?.icon_emoji || (isFolder(it) ? "📁" : "📄"),
+          prio: meta?.priority || "Média",
+          cardBg: withAlpha(color, "1F", "rgba(255,255,255,0.05)"),
+          cardBorder: withAlpha(color, "55", "rgba(255,255,255,0.10)"),
+          softBg: withAlpha(color, "2B", "rgba(255,255,255,0.08)"),
+          softBorder: withAlpha(color, "70", "rgba(255,255,255,0.15)"),
+          author: meta?.author || null,
+          locked: !!meta?.is_locked,
+        };
+      }),
+    [filteredItems, metaMap]
+  );
 
   // ---------- Boot ----------
   useEffect(() => {
@@ -756,17 +799,17 @@ export default function FilesPage() {
             <div className={styles.crumbs}>
               Pasta atual:{" "}
               <span className={styles.crumbPath}>
-                {folderStack.map((c, idx) => (
+                {breadcrumbItems.map((c) => (
                   <span key={c.id}>
                     <button
                       className={styles.crumbBtn}
-                      onClick={() => goToCrumb(idx)}
+                      onClick={() => goToCrumb(c.index)}
                       disabled={loading}
                       title="Ir para esta pasta"
                     >
                       {c.name}
                     </button>
-                    {idx < folderStack.length - 1 ? " / " : ""}
+                    {!c.isLast ? " / " : ""}
                   </span>
                 ))}
               </span>{" "}
@@ -811,30 +854,22 @@ export default function FilesPage() {
           ) : (
             <div className={styles.scroll}>
               <div className={styles.grid}>
-                {filteredItems.map((it) => {
-                  const meta = metaMap[it.id];
-                  const icon = meta?.icon_emoji || (isFolder(it) ? "📁" : "📄");
-                  const color = meta?.color || "#7C3AED";
-                  const prio = meta?.priority || "Média";
-                  const cardBg = withAlpha(color, "1F", "rgba(255,255,255,0.05)");
-                  const cardBorder = withAlpha(color, "55", "rgba(255,255,255,0.10)");
-                  const softBg = withAlpha(color, "2B", "rgba(255,255,255,0.08)");
-                  const softBorder = withAlpha(color, "70", "rgba(255,255,255,0.15)");
-
+                {cardViews.map((view) => {
+                  const it = view.item;
                   return (
                     <div
                       key={it.id}
                       className={styles.itemCard}
-                      style={{ backgroundColor: cardBg, borderColor: cardBorder }}
+                      style={{ backgroundColor: view.cardBg, borderColor: view.cardBorder }}
                     >
                       <div className={styles.itemTop}>
                         <div className={styles.itemHeadRow}>
                           <div
                             className={styles.itemIconWrap}
-                            style={{ background: softBg, borderColor: softBorder }}
+                            style={{ background: view.softBg, borderColor: view.softBorder }}
                             title="Cor do item"
                           >
-                            <span className={styles.itemIcon}>{icon}</span>
+                            <span className={styles.itemIcon}>{view.icon}</span>
                           </div>
                           <div className={styles.itemMeta}>
                             <div className={styles.itemName}>{it.name}</div>
@@ -848,7 +883,7 @@ export default function FilesPage() {
                           {!isFolder(it) && it.size ? (
                             <span
                               className={styles.chip}
-                              style={{ backgroundColor: softBg, borderColor: softBorder }}
+                              style={{ backgroundColor: view.softBg, borderColor: view.softBorder }}
                             >
                               {formatBytes(it.size)}
                             </span>
@@ -856,24 +891,24 @@ export default function FilesPage() {
 
                           <span
                             className={styles.chip}
-                            style={{ backgroundColor: softBg, borderColor: softBorder }}
+                            style={{ backgroundColor: view.softBg, borderColor: view.softBorder }}
                           >
-                            Prioridade: {prio}
+                            Prioridade: {view.prio}
                           </span>
 
-                          {meta?.author ? (
+                          {view.author ? (
                             <span
                               className={styles.chip}
-                              style={{ backgroundColor: softBg, borderColor: softBorder }}
+                              style={{ backgroundColor: view.softBg, borderColor: view.softBorder }}
                             >
-                              Autor: {meta.author}
+                              Autor: {view.author}
                             </span>
                           ) : null}
 
-                          {meta?.is_locked ? (
+                          {view.locked ? (
                             <span
                               className={styles.chip}
-                              style={{ backgroundColor: softBg, borderColor: softBorder }}
+                              style={{ backgroundColor: view.softBg, borderColor: view.softBorder }}
                             >
                               🔒 Trancado
                             </span>
@@ -885,7 +920,7 @@ export default function FilesPage() {
                         <button
                           onClick={() => (isFolder(it) ? goIntoFolder(it) : openDrive(it))}
                           className={styles.openBtn}
-                          style={{ backgroundColor: softBg, borderColor: softBorder }}
+                          style={{ backgroundColor: view.softBg, borderColor: view.softBorder }}
                         >
                           Abrir
                         </button>
@@ -893,7 +928,7 @@ export default function FilesPage() {
                         <button
                           onClick={() => openEditModal(it)}
                           className={styles.iconBtn}
-                          style={{ backgroundColor: softBg, borderColor: softBorder }}
+                          style={{ backgroundColor: view.softBg, borderColor: view.softBorder }}
                           title="Editar"
                         >
                           ✏️
