@@ -125,7 +125,7 @@ export default function FinanceDashboardPage() {
 
   return (
     <main className={styles.page}>
-      <div>
+      <div className={styles.hero}>
         <h1 className={styles.title}>Finanças</h1>
         <p className={styles.subtitle}>Visão geral do seu fluxo financeiro</p>
       </div>
@@ -140,8 +140,8 @@ export default function FinanceDashboardPage() {
         cardsDueTotal={totalCardsDue}
       />
 
-      <div className={styles.grid}>
-        <div className={`${styles.card} ${styles.span4}`}>
+      <div className={styles.insightGrid}>
+        <div className={`${styles.card} ${styles.insightCard}`}>
           <h3 className={styles.noTopMargin}>Top categorias (mês)</h3>
           <ul className={styles.inlineList}>
             {topCategories.length === 0 ? (
@@ -156,7 +156,7 @@ export default function FinanceDashboardPage() {
           </ul>
         </div>
 
-        <div className={`${styles.card} ${styles.span4}`}>
+        <div className={`${styles.card} ${styles.insightCard}`}>
           <h3 className={styles.noTopMargin}>Cartões para pagar</h3>
           {cardsDueByName.length === 0 ? (
             <p className={styles.label}>Nenhum cartão com valor de fatura informado.</p>
@@ -171,14 +171,14 @@ export default function FinanceDashboardPage() {
             </ul>
           )}
         </div>
+      </div>
 
-        <div className={styles.span12}>
-          <RecentTransactions
-            rows={transactions}
-            accountNameById={accountNameById}
-            categoryNameById={categoryNameById}
-          />
-        </div>
+      <div className={styles.transactionsBlock}>
+        <RecentTransactions
+          rows={transactions}
+          accountNameById={accountNameById}
+          categoryNameById={categoryNameById}
+        />
       </div>
 
       {msg ? <div className={styles.msg}>{msg}</div> : null}

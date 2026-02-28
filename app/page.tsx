@@ -1,25 +1,33 @@
 import Link from "next/link";
 import styles from "./home.module.css";
+import type { CSSProperties } from "react";
 
 function Card({
   href,
   title,
   value,
   icon,
+  iconClassName,
+  tone,
 }: {
   href: string;
   title: string;
   value: string;
   icon: string;
+  iconClassName?: string;
+  tone: string;
 }) {
+  const style = { "--card-tone": tone } as CSSProperties;
+
   return (
     <Link
       href={href}
       className={styles.cardLink}
+      style={style}
     >
       <div className={styles.cardRow}>
         <div className={styles.cardLead}>
-          <div className={styles.cardIcon}>
+          <div className={[styles.cardIcon, iconClassName || ""].join(" ").trim()}>
             {icon}
           </div>
           <div>
@@ -42,11 +50,11 @@ export default function Dashboard() {
       </div>
 
       <div className={styles.gridThree}>
-        <Card href="/files" title="Arquivos" value="0" icon="📁" />
-        <Card href="/tasks" title="Tarefas Pendentes" value="0" icon="✅" />
-        <Card href="/passwords" title="Senhas" value="0" icon="🔒" />
-        <Card href="/calendar" title="Eventos" value="0" icon="🗓️" />
-        <Card href="/financas" title="Saldo" value="R$ 0,00" icon="💲" />
+        <Card href="/files" title="Arquivos" value="0" icon="📂" iconClassName={styles.iconBlue} tone="#0ea5e9" />
+        <Card href="/tasks" title="Tarefas Pendentes" value="0" icon="☑" iconClassName={styles.iconGreen} tone="#22c55e" />
+        <Card href="/passwords" title="Senhas" value="0" icon="🔒" iconClassName={styles.iconOrange} tone="#f97316" />
+        <Card href="/calendar" title="Eventos" value="0" icon="🗓" iconClassName={styles.iconAmber} tone="#f59e0b" />
+        <Card href="/financas" title="Saldo" value="R$ 0,00" icon="$" iconClassName={styles.iconTeal} tone="#14b8a6" />
       </div>
 
       <div className={styles.gridTwo}>

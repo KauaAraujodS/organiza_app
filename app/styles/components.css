@@ -67,3 +67,67 @@
   opacity: 0.6;
   cursor: default;
 }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.58);
+  backdrop-filter: blur(2px);
+}
+
+.modal-surface {
+  border: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-2) 96%, transparent);
+  color: var(--text-main);
+  box-shadow: var(--shadow-2);
+}
+
+.modal-title {
+  color: var(--text-main);
+}
+
+.modal-subtitle,
+.modal-muted {
+  color: var(--text-soft);
+}
+
+.modal-label {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.modal-field {
+  width: 100%;
+  border-radius: 0.8rem;
+  border: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-1) 92%, transparent);
+  color: var(--text-main);
+  padding: 0.72rem 0.88rem;
+  outline: none;
+}
+
+.modal-field:focus {
+  border-color: color-mix(in oklab, var(--brand) 52%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--brand) 22%, transparent);
+}
+
+.modal-soft-box {
+  border: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-1) 84%, transparent);
+}
+
+.modal-menu {
+  border: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-2) 98%, transparent);
+  box-shadow: var(--shadow-1);
+}
+
+[data-theme="light"] .modal-overlay {
+  background: rgba(15, 23, 42, 0.38);
+}
+
+[data-theme="light"] .modal-surface {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+}

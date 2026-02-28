@@ -57,14 +57,16 @@ export default function FinanceAccountsPage() {
 
   return (
     <main className={styles.page}>
-      <div className={styles.header}>
-        <div>
-          <h1 className={styles.title}>Contas</h1>
-          <p className={styles.subtitle}>Gerencie banco, carteira, poupança e cartões</p>
+      <div className={styles.hero}>
+        <div className={styles.header}>
+          <div>
+            <h1 className={styles.title}>Contas</h1>
+            <p className={styles.subtitle}>Gerencie banco, carteira, poupança e cartões</p>
+          </div>
+          <button className={styles.button} onClick={() => { setEditing(null); setOpen(true); }}>
+            + Nova conta
+          </button>
         </div>
-        <button className={styles.button} onClick={() => { setEditing(null); setOpen(true); }}>
-          + Nova conta
-        </button>
       </div>
 
       <FinanceTabs />

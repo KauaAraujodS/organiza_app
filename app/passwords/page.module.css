@@ -22,11 +22,12 @@
 .title {
   font-size: 1.875rem;
   font-weight: 700;
+  color: var(--text-main);
 }
 
 .subtitle {
   margin-top: 4px;
-  color: var(--text-muted);
+  color: var(--text-soft);
 }
 
 .actions {
@@ -38,12 +39,12 @@
 
 .card {
   border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  background: rgba(15, 23, 42, 0.56);
+  border: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-2) 90%, transparent);
   padding: 24px;
   display: grid;
   gap: 16px;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.26);
+  box-shadow: var(--shadow-1);
 }
 
 .cardNarrow {
@@ -79,10 +80,11 @@
 .textarea {
   width: 100%;
   border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  background: rgba(2, 6, 23, 0.45);
+  border: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-1) 92%, transparent);
   padding: 12px 16px;
   outline: none;
+  color: var(--text-main);
 }
 
 .textarea {
@@ -123,8 +125,8 @@
 
 .btnSecondary {
   border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  background: rgba(30, 41, 59, 0.74);
+  border: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-3) 76%, transparent);
   padding: 12px 20px;
 }
 
@@ -150,8 +152,8 @@
 
 .categoryBtn {
   border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  background: rgba(30, 41, 59, 0.68);
+  border: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-3) 74%, transparent);
   padding: 8px 16px;
 }
 
@@ -171,8 +173,8 @@
 
 .item {
   border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  background: rgba(2, 6, 23, 0.38);
+  border: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-1) 88%, transparent);
   padding: 20px;
 }
 
@@ -210,8 +212,8 @@
 .itemBody {
   margin-top: 16px;
   border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  background: rgba(2, 6, 23, 0.34);
+  border: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-1) 82%, transparent);
   padding: 16px;
 }
 
@@ -286,6 +288,28 @@
 .error {
   font-size: 0.875rem;
   color: #fca5a5;
+}
+
+:global([data-theme="light"]) .card,
+:global([data-theme="light"]) .item,
+:global([data-theme="light"]) .itemBody,
+:global([data-theme="light"]) .empty {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+}
+
+:global([data-theme="light"]) .input,
+:global([data-theme="light"]) .textarea {
+  background: #f8fbff;
+}
+
+:global([data-theme="dark"]) .card,
+:global([data-theme="dark"]) .item,
+:global([data-theme="dark"]) .itemBody,
+:global([data-theme="dark"]) .empty {
+  background: rgba(17, 26, 43, 0.9);
+  border-color: rgba(122, 146, 184, 0.22);
 }
 
 @media (max-width: 768px) {

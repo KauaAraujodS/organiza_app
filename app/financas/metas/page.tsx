@@ -156,7 +156,7 @@ export default function FinanceGoalsPage() {
 
   return (
     <main className={styles.page}>
-      <div>
+      <div className={styles.hero}>
         <h1 className={styles.title}>Metas</h1>
         <p className={styles.subtitle}>Reserva, viagem e objetivos financeiros</p>
       </div>

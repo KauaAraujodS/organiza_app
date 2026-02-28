@@ -105,14 +105,16 @@ export default function FinanceTransactionsPage() {
 
   return (
     <main className={styles.page}>
-      <div className={styles.header}>
-        <div>
-          <h1 className={styles.title}>Transações</h1>
-          <p className={styles.subtitle}>Entradas, saídas, transferências, split e anexos</p>
+      <div className={styles.hero}>
+        <div className={styles.header}>
+          <div>
+            <h1 className={styles.title}>Transações</h1>
+            <p className={styles.subtitle}>Entradas, saídas, transferências, split e anexos</p>
+          </div>
+          <button className={styles.button} onClick={() => { setEditing(null); setOpen(true); }}>
+            + Nova transação
+          </button>
         </div>
-        <button className={styles.button} onClick={() => { setEditing(null); setOpen(true); }}>
-          + Nova transação
-        </button>
       </div>
 
       <FinanceTabs />

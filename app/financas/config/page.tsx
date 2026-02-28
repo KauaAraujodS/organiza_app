@@ -46,7 +46,7 @@ export default function FinanceConfigPage() {
 
   return (
     <main className={styles.page}>
-      <div>
+      <div className={styles.hero}>
         <h1 className={styles.title}>Configurações Financeiras</h1>
         <p className={styles.subtitle}>Categorias, subcategorias e tags</p>
       </div>
@@ -58,20 +58,20 @@ export default function FinanceConfigPage() {
         <p className={styles.label}>Categorias classificam entradas e saídas. Tags ajudam a filtrar e comparar gastos.</p>
       </div>
 
-      <div className={styles.grid}>
-        <div className={`${styles.card} ${styles.span3}`}>
+      <div className={styles.kpiGrid}>
+        <div className={`${styles.card} ${styles.kpiCard} ${styles.kpiNeutral}`}>
           <div className={styles.label}>Categorias totais</div>
           <div className={styles.kpi}>{totals.categories}</div>
         </div>
-        <div className={`${styles.card} ${styles.span3}`}>
+        <div className={`${styles.card} ${styles.kpiCard} ${styles.kpiSuccess}`}>
           <div className={styles.label}>Categorias ativas</div>
           <div className={`${styles.kpi} ${styles.textSuccess}`}>{totals.activeCategories}</div>
         </div>
-        <div className={`${styles.card} ${styles.span3}`}>
+        <div className={`${styles.card} ${styles.kpiCard} ${styles.kpiDangerSoft}`}>
           <div className={styles.label}>Categorias arquivadas</div>
           <div className={styles.kpi}>{totals.archivedCategories}</div>
         </div>
-        <div className={`${styles.card} ${styles.span3}`}>
+        <div className={`${styles.card} ${styles.kpiCard} ${styles.kpiNeutral}`}>
           <div className={styles.label}>Tags</div>
           <div className={styles.kpi}>{totals.tags}</div>
         </div>

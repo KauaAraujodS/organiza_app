@@ -1,45 +1,66 @@
 .page {
   width: 100%;
-  max-width: 100%;
-  padding: 1.25rem 1.5rem 2rem;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0.95rem 1.05rem 1.1rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.78rem;
   overflow-x: hidden;
+}
+
+.hero {
+  border-radius: 1.1rem;
+  border: 1px solid var(--line-soft);
+  background:
+    radial-gradient(900px 220px at 10% -65%, color-mix(in oklab, var(--brand) 24%, transparent), transparent 72%),
+    color-mix(in oklab, var(--surface-2) 94%, transparent);
+  padding: 0.88rem 1rem;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.7rem;
   flex-wrap: wrap;
 }
 
 .title {
   margin: 0;
-  color: #fff;
-  font-size: 2rem;
-  font-weight: 700;
+  color: var(--text-main);
+  font-size: clamp(1.9rem, 2.8vw, 2.55rem);
+  font-weight: 760;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
-  margin-top: 0.25rem;
-  color: #9eb2cc;
-  font-size: 0.95rem;
+  margin-top: 0.2rem;
+  color: var(--text-soft);
+  font-size: 1rem;
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 0.75rem;
+  gap: 0.78rem;
 }
 
 .card {
-  background: rgba(2, 6, 12, 0.7);
-  border: 1px solid #2c3b4e;
+  background: color-mix(in oklab, var(--surface-2) 92%, transparent);
+  border: 1px solid var(--line-soft);
   border-radius: 1rem;
-  padding: 1rem;
+  padding: 0.85rem 0.9rem;
+  box-shadow: var(--shadow-1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+}
+
+.card:hover {
+  border-color: color-mix(in oklab, var(--brand) 32%, var(--line-soft) 68%);
+  box-shadow: 0 14px 32px color-mix(in oklab, var(--brand) 18%, transparent);
+  transform: translateY(-1px);
 }
 
 .noTopMargin {
@@ -145,12 +166,13 @@
 }
 
 .pieChart {
-  width: 220px;
-  height: 220px;
+  width: 186px;
+  height: 186px;
   border-radius: 999px;
-  border: 1px solid #30445f;
+  border: 1px solid color-mix(in oklab, var(--line-soft) 88%, transparent);
   flex-shrink: 0;
   background: var(--pie-gradient, conic-gradient(#1f2b3a 0deg 360deg));
+  box-shadow: inset 0 0 0 6px color-mix(in oklab, var(--surface-1) 84%, transparent);
 }
 
 .legendDot {
@@ -170,7 +192,7 @@
   display: flex;
   align-items: flex-end;
   gap: 4px;
-  height: 120px;
+  height: 96px;
 }
 
 .trendBar {
@@ -188,20 +210,21 @@
 }
 
 .kpi {
-  font-size: 1.65rem;
-  font-weight: 700;
-  color: #fff;
+  font-size: clamp(1.45rem, 2.3vw, 2rem);
+  font-weight: 720;
+  color: var(--text-main);
+  margin-top: 0.18rem;
 }
 
 .label {
-  font-size: 0.85rem;
-  color: #8ca3bf;
+  font-size: 0.86rem;
+  color: var(--text-soft);
 }
 
 .helpText {
   margin-top: 0.3rem;
   font-size: 0.78rem;
-  color: #6f86a4;
+  color: var(--text-soft);
 }
 
 .tableWrap {
@@ -212,19 +235,29 @@
 .table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 660px;
 }
 
 .table th,
 .table td {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid color-mix(in oklab, var(--line-soft) 90%, transparent);
   text-align: left;
-  padding: 0.6rem;
-  font-size: 0.9rem;
+  padding: 0.6rem 0.6rem;
+  font-size: 0.92rem;
+  vertical-align: middle;
 }
 
 .table th {
-  color: #8ca3bf;
-  font-weight: 600;
+  color: var(--text-soft);
+  font-weight: 620;
+}
+
+.table tbody tr {
+  transition: background-color 0.16s ease;
+}
+
+.table tbody tr:hover {
+  background: color-mix(in oklab, var(--surface-3) 42%, transparent);
 }
 
 .input,
@@ -232,11 +265,11 @@
 .textarea,
 .button,
 .ghostButton {
-  border-radius: 0.7rem;
-  border: 1px solid rgba(255, 255, 255, 0.13);
-  background: rgba(12, 20, 34, 0.82);
-  color: #fff;
-  padding: 0.55rem 0.7rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-1) 92%, transparent);
+  color: var(--text-main);
+  padding: 0.58rem 0.74rem;
   font-size: 0.92rem;
 }
 
@@ -244,6 +277,14 @@
 .select,
 .textarea {
   width: 100%;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: color-mix(in oklab, var(--brand) 42%, var(--line-soft) 58%);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand) 18%, transparent);
 }
 
 .textarea {
@@ -255,16 +296,31 @@
   cursor: pointer;
   background: linear-gradient(90deg, #6d28d9 0%, #9333ea 100%);
   border: 0;
-  font-weight: 600;
+  color: #fff;
+  font-weight: 650;
+  box-shadow: 0 10px 20px color-mix(in oklab, var(--brand) 26%, transparent);
+}
+
+.button:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
 }
 
 .button:disabled {
   opacity: 0.6;
   cursor: default;
+  transform: none;
 }
 
 .ghostButton {
   cursor: pointer;
+  background: color-mix(in oklab, var(--surface-3) 82%, transparent);
+  font-weight: 530;
+}
+
+.ghostButton:hover {
+  background: color-mix(in oklab, var(--surface-3) 98%, transparent);
+  border-color: color-mix(in oklab, var(--brand) 28%, var(--line-soft) 72%);
 }
 
 .row {
@@ -275,16 +331,131 @@
 
 .tabsRow {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.55rem;
   flex-wrap: nowrap;
   overflow-x: auto;
-  padding-bottom: 0.15rem;
+  padding: 0.16rem 0.1rem 0.28rem;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 }
 
 .tabsRow > * {
   white-space: nowrap;
   flex: 0 0 auto;
+  padding: 0.58rem 0.9rem;
+  border-radius: 0.76rem;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tabsRow > *:hover {
+  transform: translateY(-1px);
+}
+
+.tabActive,
+.tabInactive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.3rem;
+  font-weight: 620;
+  border-radius: 0.76rem;
+  text-decoration: none;
+  border: 1px solid var(--line-soft);
+}
+
+.tabActive {
+  background: linear-gradient(90deg, #6d28d9 0%, #9333ea 100%);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 10px 22px color-mix(in oklab, var(--brand) 34%, transparent);
+}
+
+.tabInactive {
+  background: color-mix(in oklab, var(--surface-3) 82%, transparent);
+  color: var(--text-main);
+}
+
+.tabInactive:hover {
+  background: color-mix(in oklab, var(--surface-3) 98%, transparent);
+  border-color: color-mix(in oklab, var(--brand) 28%, var(--line-soft) 72%);
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.72rem;
+}
+
+.kpiCard {
+  min-height: 92px;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpiCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.18;
+}
+
+.kpiCard::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.kpiNeutral::before {
+  background: linear-gradient(130deg, rgba(59, 130, 246, 0.22), transparent 48%);
+}
+
+.kpiNeutral::after {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.6), transparent);
+}
+
+.kpiSuccess::before {
+  background: linear-gradient(130deg, rgba(16, 185, 129, 0.22), transparent 48%);
+}
+
+.kpiSuccess::after {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.65), transparent);
+}
+
+.kpiDanger::before {
+  background: linear-gradient(130deg, rgba(244, 63, 94, 0.2), transparent 48%);
+}
+
+.kpiDanger::after {
+  background: linear-gradient(90deg, rgba(244, 63, 94, 0.65), transparent);
+}
+
+.kpiDangerSoft::before {
+  background: linear-gradient(130deg, rgba(249, 115, 22, 0.22), transparent 48%);
+}
+
+.kpiDangerSoft::after {
+  background: linear-gradient(90deg, rgba(249, 115, 22, 0.6), transparent);
+}
+
+.insightGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.72rem;
+}
+
+.insightCard {
+  min-height: 112px;
+}
+
+.transactionsBlock {
+  display: block;
 }
 
 .swatchGrid {
@@ -311,7 +482,7 @@
 }
 
 .swatchButtonActive {
-  border-color: #ffffff;
+  border-color: var(--text-main);
   box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.35);
 }
 
@@ -326,7 +497,7 @@
   height: 2.35rem;
   min-width: 2.35rem;
   border-radius: 0.55rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--line-soft);
   background: transparent;
   padding: 0.15rem;
   cursor: pointer;
@@ -349,13 +520,13 @@
 .col2 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.5rem;
+  gap: 0.68rem;
 }
 
 .col3 {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem;
+  gap: 0.65rem;
 }
 
 .badge {
@@ -363,7 +534,7 @@
   align-items: center;
   border-radius: 999px;
   padding: 0.2rem 0.55rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--line-soft);
   font-size: 0.72rem;
 }
 
@@ -376,7 +547,7 @@
 }
 
 .msg {
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   color: #fda4af;
 }
 
@@ -406,22 +577,130 @@
   background: linear-gradient(90deg, #ef4444 0%, #f43f5e 100%);
 }
 
+:global([data-theme="light"]) .page {
+  max-width: 1380px;
+}
+
+:global([data-theme="light"]) .card {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+}
+
+:global([data-theme="light"]) .card:hover {
+  border-color: rgba(109, 40, 217, 0.32);
+  box-shadow: 0 18px 36px rgba(109, 40, 217, 0.15);
+}
+
+:global([data-theme="light"]) .input,
+:global([data-theme="light"]) .select,
+:global([data-theme="light"]) .textarea,
+:global([data-theme="light"]) .ghostButton {
+  background: #f8fbff;
+}
+
+:global([data-theme="light"]) .hero {
+  background:
+    radial-gradient(1000px 220px at 10% -60%, rgba(109, 40, 217, 0.12), transparent 72%),
+    #ffffff;
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.08);
+}
+
+:global([data-theme="light"]) .tabsRow > * {
+  background: #f5f8ff;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  color: #1e293b;
+}
+
+:global([data-theme="light"]) .tabActive {
+  background: linear-gradient(90deg, #6d28d9 0%, #9333ea 100%);
+  color: #ffffff;
+  border-color: transparent;
+}
+
+:global([data-theme="light"]) .tabInactive {
+  background: #f5f8ff;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  color: #1e293b;
+}
+
+:global([data-theme="light"]) .table tbody tr:hover {
+  background: #f6f9ff;
+}
+
+:global([data-theme="light"]) .button {
+  color: #fff;
+}
+
+:global([data-theme="dark"]) .card {
+  background: rgba(17, 26, 43, 0.9);
+  border-color: rgba(122, 146, 184, 0.22);
+}
+
+:global([data-theme="dark"]) .card:hover {
+  border-color: rgba(139, 92, 246, 0.42);
+  box-shadow: 0 18px 38px rgba(75, 29, 149, 0.3);
+}
+
+:global([data-theme="dark"]) .hero {
+  border-color: rgba(122, 146, 184, 0.22);
+}
+
+:global([data-theme="dark"]) .tabsRow > * {
+  background: rgba(23, 35, 56, 0.9);
+  border: 1px solid rgba(122, 146, 184, 0.22);
+}
+
+:global([data-theme="dark"]) .tabActive {
+  background: linear-gradient(90deg, #6d28d9 0%, #9333ea 100%);
+  border-color: transparent;
+  color: #ffffff;
+}
+
+:global([data-theme="dark"]) .tabInactive {
+  background: rgba(23, 35, 56, 0.9);
+  border: 1px solid rgba(122, 146, 184, 0.22);
+  color: #d7e3f5;
+}
+
+:global([data-theme="dark"]) .table tbody tr:hover {
+  background: rgba(45, 62, 92, 0.28);
+}
+
+@media (max-width: 1024px) {
+  .span3,
+  .span4,
+  .span6 {
+    grid-column: span 6;
+  }
+
+  .col3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 900px) {
   .page {
-    padding: 0.85rem;
+    padding: 0.82rem;
   }
 
   .title {
-    font-size: 1.65rem;
+    font-size: 1.62rem;
   }
 
   .col2,
-  .col3 {
+  .col3,
+  .formGrid,
+  .insightGrid {
     grid-template-columns: 1fr;
   }
 
-  .grid > * {
-    grid-column: span 12 !important;
+  .span3,
+  .span4,
+  .span6,
+  .span12 {
+    grid-column: 1 / -1;
   }
 
   .table {
@@ -431,15 +710,19 @@
   .card {
     padding: 0.85rem;
   }
+
+  .kpiGrid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
 }
 
 @media (max-width: 640px) {
   .title {
-    font-size: 1.5rem;
+    font-size: 1.46rem;
   }
 
   .kpi {
-    font-size: 1.35rem;
+    font-size: 1.3rem;
   }
 
   .button,
@@ -454,7 +737,7 @@
     font-size: 0.84rem;
   }
 
-  .formGrid {
-    grid-template-columns: 1fr;
+  .tabsRow > * {
+    padding: 0.54rem 0.78rem;
   }
 }

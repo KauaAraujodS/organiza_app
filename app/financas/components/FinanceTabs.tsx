@@ -26,7 +26,7 @@ export default function FinanceTabs() {
           <Link
             key={t.href}
             href={t.href}
-            className={active ? styles.button : styles.ghostButton}
+            className={active ? styles.tabActive : styles.tabInactive}
           >
             {t.label}
           </Link>

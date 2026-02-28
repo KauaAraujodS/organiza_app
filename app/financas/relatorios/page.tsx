@@ -183,7 +183,7 @@ export default function FinanceReportsPage() {
 
   return (
     <main className={styles.page}>
-      <div>
+      <div className={styles.hero}>
         <h1 className={styles.title}>Relatórios</h1>
         <p className={styles.subtitle}>Análise dos seus gastos, entradas e tendências</p>
       </div>

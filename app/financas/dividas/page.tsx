@@ -134,7 +134,7 @@ export default function FinanceDebtsPage() {
 
   return (
     <main className={styles.page}>
-      <div>
+      <div className={styles.hero}>
         <h1 className={styles.title}>Dívidas</h1>
         <p className={styles.subtitle}>Controle de saldos devedores e status</p>
       </div>

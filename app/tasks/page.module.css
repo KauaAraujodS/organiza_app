@@ -16,11 +16,12 @@
 .title {
   font-size: 1.875rem;
   font-weight: 700;
+  color: var(--text-main);
 }
 
 .subtitle {
   margin-top: 4px;
-  color: var(--text-muted);
+  color: var(--text-soft);
 }
 
 .primaryBtn {
@@ -46,11 +47,11 @@
 
 .panel {
   border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  background: rgba(15, 23, 42, 0.56);
+  border: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-2) 90%, transparent);
   backdrop-filter: blur(6px);
   padding: 20px;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.26);
+  box-shadow: var(--shadow-1);
 }
 
 .tabs {
@@ -61,8 +62,8 @@
 
 .tabBtn {
   border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-3) 78%, transparent);
   padding: 8px 14px;
 }
 
@@ -84,8 +85,8 @@
 .loadingCard,
 .emptyCard {
   border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  background: rgba(2, 6, 23, 0.4);
+  border: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-1) 90%, transparent);
   text-align: center;
   color: var(--text-muted);
 }
@@ -114,8 +115,8 @@
 
 .taskCard {
   border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  background: rgba(2, 6, 23, 0.38);
+  border: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-1) 88%, transparent);
   padding: 20px;
   display: flex;
   align-items: flex-start;
@@ -244,4 +245,27 @@
 .error {
   font-size: 0.875rem;
   color: #fca5a5;
+}
+
+:global([data-theme="light"]) .tabBtn:hover,
+:global([data-theme="light"]) .iconBtn:hover,
+:global([data-theme="light"]) .doneBtn:hover {
+  background: rgba(124, 58, 237, 0.08);
+}
+
+:global([data-theme="light"]) .panel,
+:global([data-theme="light"]) .taskCard,
+:global([data-theme="light"]) .loadingCard,
+:global([data-theme="light"]) .emptyCard {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+}
+
+:global([data-theme="dark"]) .panel,
+:global([data-theme="dark"]) .taskCard,
+:global([data-theme="dark"]) .loadingCard,
+:global([data-theme="dark"]) .emptyCard {
+  background: rgba(17, 26, 43, 0.9);
+  border-color: rgba(122, 146, 184, 0.22);
 }

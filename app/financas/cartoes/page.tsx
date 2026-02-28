@@ -115,7 +115,7 @@ export default function FinanceCardsPage() {
 
   return (
     <main className={styles.page}>
-      <div>
+      <div className={styles.hero}>
         <h1 className={styles.title}>Cartões</h1>
         <p className={styles.subtitle}>Fechamento, vencimento e limite do cartão</p>
       </div>

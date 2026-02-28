@@ -34,7 +34,7 @@ export default function RootLayout({
   `;
 
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" data-theme="dark" suppressHydrationWarning>
       <body>
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
         <AuthGate>

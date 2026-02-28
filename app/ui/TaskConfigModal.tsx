@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import ModalShell from "./ModalShell";
 
 export type Priority = "Baixa" | "Média" | "Alta";
 export type RecurrencePreset = "none" | "daily" | "weekly" | "monthly" | "yearly" | "custom";
@@ -42,9 +43,9 @@ type Props = {
 };
 
 function priorityPill(p: Priority) {
-  if (p === "Alta") return "bg-red-500/20 text-red-100 border-red-400/30";
-  if (p === "Média") return "bg-amber-500/20 text-amber-100 border-amber-400/30";
-  return "bg-emerald-500/20 text-emerald-100 border-emerald-400/30";
+  if (p === "Alta") return "bg-red-500/20 text-red-300 border-red-400/35";
+  if (p === "Média") return "bg-amber-500/20 text-amber-300 border-amber-400/35";
+  return "bg-emerald-500/20 text-emerald-300 border-emerald-400/35";
 }
 
 function PrioritySelect({
@@ -62,12 +63,12 @@ function PrioritySelect({
       <button
         type="button"
         onClick={() => setOpen((s) => !s)}
-        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none flex items-center justify-between hover:bg-white/10 transition"
+        className="modal-field flex items-center justify-between"
       >
         <span className={["px-3 py-1 rounded-full border font-medium", priorityPill(value)].join(" ")}>
           {value}
         </span>
-        <span className="text-slate-300">▾</span>
+        <span className="modal-muted">▾</span>
       </button>
 
       {open && (
@@ -78,7 +79,7 @@ function PrioritySelect({
             onClick={() => setOpen(false)}
             aria-label="fechar"
           />
-          <div className="absolute z-50 mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur p-2 shadow-xl">
+          <div className="modal-menu absolute z-50 mt-2 w-full rounded-2xl p-2">
             {options.map((opt) => (
               <button
                 key={opt}
@@ -88,8 +89,8 @@ function PrioritySelect({
                   setOpen(false);
                 }}
                 className={[
-                  "w-full flex items-center gap-2 rounded-xl px-3 py-2 hover:bg-white/10 transition",
-                  opt === value ? "bg-white/10" : "",
+                  "w-full flex items-center gap-2 rounded-xl px-3 py-2 transition",
+                  opt === value ? "bg-white/15" : "hover:bg-white/10",
                 ].join(" ")}
               >
                 <span className={["px-3 py-1 rounded-full border font-medium", priorityPill(opt)].join(" ")}>
@@ -126,10 +127,10 @@ function DropdownSelect<T extends string>({
       <button
         type="button"
         onClick={() => setOpen((s) => !s)}
-        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left outline-none flex items-center justify-between hover:bg-white/10 transition"
+        className="modal-field flex items-center justify-between text-left"
       >
         <span>{selected?.label}</span>
-        <span className="text-slate-300">▾</span>
+        <span className="modal-muted">▾</span>
       </button>
       {open ? (
         <>
@@ -139,7 +140,7 @@ function DropdownSelect<T extends string>({
             onClick={() => setOpen(false)}
             aria-label="fechar"
           />
-          <div className="absolute z-50 mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur p-2 shadow-xl">
+          <div className="modal-menu absolute z-50 mt-2 w-full rounded-2xl p-2">
             {options.map((opt) => (
               <button
                 key={opt.value}
@@ -149,8 +150,8 @@ function DropdownSelect<T extends string>({
                   setOpen(false);
                 }}
                 className={[
-                  "w-full rounded-xl px-3 py-2 text-left hover:bg-white/10 transition",
-                  opt.value === value ? "bg-white/10" : "",
+                  "w-full rounded-xl px-3 py-2 text-left transition",
+                  opt.value === value ? "bg-white/15" : "hover:bg-white/10",
                 ].join(" ")}
               >
                 {opt.label}
@@ -230,44 +231,46 @@ export default function TaskConfigModal(props: Props) {
   ];
 
   return (
-    <>
-      <button className="fixed inset-0 bg-black/60 z-40" onClick={onClose} aria-label="Fechar" />
-      <div className="fixed z-50 inset-0 flex items-center justify-center p-4">
-        <div className="w-full max-w-3xl rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur p-6">
-          <div className="text-lg font-semibold">{isEditing ? "Editar Tarefa" : "Nova Tarefa"}</div>
+    <ModalShell
+      open={open}
+      onClose={onClose}
+      title={isEditing ? "Editar Tarefa" : "Nova Tarefa"}
+      subtitle="Defina prioridade, vencimento, recorrência e sincronização."
+      maxWidthClass="max-w-3xl"
+      footer={null}
+    >
+      <div className="mt-1 grid gap-4">
+        <div>
+          <div className="modal-label mb-2 text-sm">Título</div>
+          <input
+            className="modal-field"
+            placeholder="Digite o título da tarefa"
+            value={taskTitle}
+            onChange={(e) => onTaskTitleChange(e.target.value)}
+            maxLength={120}
+          />
+          <div className="modal-muted mt-1 text-xs">{taskTitle.trim().length}/120</div>
+        </div>
 
-          <div className="mt-4 grid gap-4">
-            <div>
-              <div className="text-sm text-slate-300 mb-2">Título</div>
-              <input
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none"
-                placeholder="Digite o título da tarefa"
-                value={taskTitle}
-                onChange={(e) => onTaskTitleChange(e.target.value)}
-                maxLength={120}
-              />
-              <div className="mt-1 text-xs text-slate-400">{taskTitle.trim().length}/120</div>
-            </div>
-
-            <div>
-              <div className="text-sm text-slate-300 mb-2">Descrição</div>
-              <textarea
-                className="w-full min-h-[110px] rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none"
-                placeholder="Adicione detalhes sobre a tarefa"
-                value={description}
-                onChange={(e) => onDescriptionChange(e.target.value)}
-              />
-            </div>
+        <div>
+          <div className="modal-label mb-2 text-sm">Descrição</div>
+          <textarea
+            className="modal-field w-full min-h-[110px]"
+            placeholder="Adicione detalhes sobre a tarefa"
+            value={description}
+            onChange={(e) => onDescriptionChange(e.target.value)}
+          />
+        </div>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <div className="text-sm text-slate-300 mb-2">Prioridade</div>
+                <div className="modal-label mb-2 text-sm">Prioridade</div>
                 <PrioritySelect value={priority} onChange={onPriorityChange} />
               </div>
 
               <div>
-                <div className="text-sm text-slate-300 mb-2">Data de Vencimento</div>
-                <label className="mb-2 inline-flex items-center gap-2 text-xs text-slate-300">
+                <div className="modal-label mb-2 text-sm">Data de Vencimento</div>
+                <label className="modal-muted mb-2 inline-flex items-center gap-2 text-xs">
                   <input
                     type="checkbox"
                     checked={useDefaultDate}
@@ -278,7 +281,7 @@ export default function TaskConfigModal(props: Props) {
                 </label>
                 <input
                   type="date"
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none"
+                  className="modal-field"
                   value={dueDate}
                   onChange={(e) => onDueDateChange(e.target.value)}
                   disabled={useDefaultDate}
@@ -287,7 +290,7 @@ export default function TaskConfigModal(props: Props) {
                   <button
                     type="button"
                     onClick={() => onDueDateChange(new Date().toISOString().slice(0, 10))}
-                    className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs hover:bg-white/10"
+                    className="app-button-ghost rounded-lg px-3 py-1.5 text-xs"
                   >
                     Hoje
                   </button>
@@ -298,14 +301,14 @@ export default function TaskConfigModal(props: Props) {
                       d.setDate(d.getDate() + 1);
                       onDueDateChange(d.toISOString().slice(0, 10));
                     }}
-                    className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs hover:bg-white/10"
+                    className="app-button-ghost rounded-lg px-3 py-1.5 text-xs"
                   >
                     Amanhã
                   </button>
                   <button
                     type="button"
                     onClick={() => onDueDateChange("")}
-                    className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs hover:bg-white/10"
+                    className="app-button-ghost rounded-lg px-3 py-1.5 text-xs"
                   >
                     Limpar
                   </button>
@@ -315,10 +318,10 @@ export default function TaskConfigModal(props: Props) {
 
             <div className="grid gap-4 md:grid-cols-3">
               <div>
-                <div className="text-sm text-slate-300 mb-2">Hora</div>
+                <div className="modal-label mb-2 text-sm">Hora</div>
                 <input
                   type="text"
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none"
+                  className="modal-field"
                   value={dueTime}
                   onChange={(e) => {
                     const next = e.target.value.replace(/[^\d:]/g, "").slice(0, 5);
@@ -328,7 +331,7 @@ export default function TaskConfigModal(props: Props) {
                 />
               </div>
               <div>
-                <div className="text-sm text-slate-300 mb-2">Lembrete</div>
+                <div className="modal-label mb-2 text-sm">Lembrete</div>
                 <DropdownSelect
                   value={reminderValue}
                   options={reminderOptions}
@@ -338,7 +341,7 @@ export default function TaskConfigModal(props: Props) {
                 />
               </div>
               <div>
-                <div className="text-sm text-slate-300 mb-2">Recorrência</div>
+                <div className="modal-label mb-2 text-sm">Recorrência</div>
                 <DropdownSelect
                   value={recurrencePreset}
                   options={recurrenceOptions}
@@ -350,19 +353,19 @@ export default function TaskConfigModal(props: Props) {
             {recurrencePreset !== "none" ? (
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <div className="text-sm text-slate-300 mb-2">Início da Recorrência</div>
+                  <div className="modal-label mb-2 text-sm">Início da Recorrência</div>
                   <input
                     type="date"
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none"
+                    className="modal-field"
                     value={recurrenceStartDate}
                     onChange={(e) => onRecurrenceStartDateChange(e.target.value)}
                   />
                 </div>
                 <div>
-                  <div className="text-sm text-slate-300 mb-2">Fim da Recorrência (opcional)</div>
+                  <div className="modal-label mb-2 text-sm">Fim da Recorrência (opcional)</div>
                   <input
                     type="date"
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none"
+                    className="modal-field"
                     value={recurrenceEndDate}
                     onChange={(e) => onRecurrenceEndDateChange(e.target.value)}
                   />
@@ -372,9 +375,9 @@ export default function TaskConfigModal(props: Props) {
 
             {recurrencePreset === "custom" ? (
               <div>
-                <div className="text-sm text-slate-300 mb-2">RRULE personalizada</div>
+                <div className="modal-label mb-2 text-sm">RRULE personalizada</div>
                 <input
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none"
+                  className="modal-field"
                   placeholder="Ex: RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR"
                   value={recurrenceCustom}
                   onChange={(e) => onRecurrenceCustomChange(e.target.value)}
@@ -382,8 +385,8 @@ export default function TaskConfigModal(props: Props) {
               </div>
             ) : null}
 
-            <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-              <label className="inline-flex items-center gap-3 text-sm text-slate-200">
+            <div className="modal-soft-box rounded-xl px-4 py-3">
+              <label className="modal-label inline-flex items-center gap-3 text-sm">
                 <input
                   type="checkbox"
                   checked={done}
@@ -394,8 +397,8 @@ export default function TaskConfigModal(props: Props) {
               </label>
             </div>
 
-            <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-              <label className="inline-flex items-center gap-3 text-sm text-slate-200">
+            <div className="modal-soft-box rounded-xl px-4 py-3">
+              <label className="modal-label inline-flex items-center gap-3 text-sm">
                 <input
                   type="checkbox"
                   checked={syncGoogle}
@@ -404,7 +407,7 @@ export default function TaskConfigModal(props: Props) {
                 />
                 Sincronizar com Agenda
               </label>
-              <p className="mt-1 text-xs text-slate-400">
+              <p className="modal-muted mt-1 text-xs">
                 Requer data de vencimento e login com Google.
               </p>
               {googleEventId ? (
@@ -418,7 +421,7 @@ export default function TaskConfigModal(props: Props) {
               <button
                 onClick={onSubmit}
                 disabled={saving}
-                className="rounded-xl bg-violet-600/90 px-6 py-3 font-medium hover:bg-violet-500 transition border border-white/10 disabled:opacity-60"
+                className="app-button rounded-xl px-6 py-3 font-medium transition disabled:opacity-60"
               >
                 {saving ? "Salvando..." : isEditing ? "Salvar Alterações" : "Criar Tarefa"}
               </button>
@@ -426,16 +429,14 @@ export default function TaskConfigModal(props: Props) {
               <button
                 onClick={onClose}
                 disabled={saving}
-                className="rounded-xl border border-white/10 bg-white/5 px-6 py-3 hover:bg-white/10 transition disabled:opacity-60"
+                className="app-button-ghost rounded-xl px-6 py-3 transition disabled:opacity-60"
               >
                 Cancelar
               </button>
             </div>
 
             {message ? <div className="text-sm text-red-300">{message}</div> : null}
-          </div>
-        </div>
       </div>
-    </>
+    </ModalShell>
   );
 }
