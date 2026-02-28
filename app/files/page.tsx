@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import EditDriveItemModal, { DriveEditValues } from "../api/ui/EditDriveItemModal";
 import { getValidAccessToken } from "../lib/googleToken";
@@ -70,15 +70,15 @@ function withAlpha(hex: string, alphaHex: string, fallback: string) {
 }
 
 async function driveRequest<T>(
-  _accessToken: string,
+  accessToken: string,
   url: string,
   init?: RequestInit
 ): Promise<T> {
-  const accessToken = await getValidAccessToken();
+  const resolvedToken = accessToken || (await getValidAccessToken());
   const r = await fetch(url, {
     ...init,
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${resolvedToken}`,
       ...(init?.headers || {}),
     },
   });
@@ -138,11 +138,12 @@ export default function FilesPage() {
     iconEmoji: "📁",
   });
 
+  const deferredQuery = useDeferredValue(query);
   const filteredItems = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = deferredQuery.trim().toLowerCase();
     if (!q) return items;
     return items.filter((it) => it.name.toLowerCase().includes(q));
-  }, [items, query]);
+  }, [deferredQuery, items]);
 
   // ---------- Boot ----------
   useEffect(() => {

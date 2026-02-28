@@ -149,15 +149,21 @@ export default function PasswordsPage() {
   const [saving, setSaving] = useState(false);
   const [activeCategory, setActiveCategory] = useState("Todas");
 
-  const categories = useMemo(() => {
-    const unique = Array.from(new Set(rows.map((r) => (r.category || "").trim()).filter(Boolean)));
-    return ["Todas", ...unique];
-  }, [rows]);
+  const { categories, filteredRows } = useMemo(() => {
+    const unique = new Set<string>();
+    const filtered: VaultRow[] = [];
 
-  const filteredRows = useMemo(() => {
-    if (activeCategory === "Todas") return rows;
-    return rows.filter((r) => (r.category || "").trim() === activeCategory);
-  }, [rows, activeCategory]);
+    for (const row of rows) {
+      const cat = (row.category || "").trim();
+      if (cat) unique.add(cat);
+      if (activeCategory === "Todas" || cat === activeCategory) filtered.push(row);
+    }
+
+    return {
+      categories: ["Todas", ...Array.from(unique)],
+      filteredRows: filtered,
+    };
+  }, [activeCategory, rows]);
 
   async function loadVaultRows(uid: string) {
     const { data, error } = await supabase

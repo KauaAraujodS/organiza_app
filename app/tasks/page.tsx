@@ -154,18 +154,24 @@ export default function TasksPage() {
     load();
   }, []);
 
-  const counts = useMemo(() => {
-    const all = tasks.length;
-    const active = tasks.filter((t) => !t.done).length;
-    const done = tasks.filter((t) => t.done).length;
-    return { all, active, done };
-  }, [tasks]);
+  const { counts, filtered } = useMemo(() => {
+    const activeTasks: Task[] = [];
+    const doneTasks: Task[] = [];
 
-  const filtered = useMemo(() => {
-    if (tab === "active") return tasks.filter((t) => !t.done);
-    if (tab === "done") return tasks.filter((t) => t.done);
-    return tasks;
-  }, [tasks, tab]);
+    for (const task of tasks) {
+      if (task.done) doneTasks.push(task);
+      else activeTasks.push(task);
+    }
+
+    return {
+      counts: {
+        all: tasks.length,
+        active: activeTasks.length,
+        done: doneTasks.length,
+      },
+      filtered: tab === "active" ? activeTasks : tab === "done" ? doneTasks : tasks,
+    };
+  }, [tab, tasks]);
 
   function resetForm() {
     setEditingId(null);

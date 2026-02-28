@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import { memo, ReactNode } from "react";
 
 type Props = {
   open: boolean;
@@ -13,7 +13,7 @@ type Props = {
   maxWidthPx?: number;
 };
 
-export default function ModalShell({
+function ModalShell({
   open,
   title,
   subtitle,
@@ -49,3 +49,5 @@ export default function ModalShell({
     </div>
   );
 }
+
+export default memo(ModalShell);
