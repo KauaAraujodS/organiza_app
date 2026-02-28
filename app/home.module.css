@@ -1,0 +1,105 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.headerTitle {
+  font-size: 1.9rem;
+  font-weight: 600;
+}
+
+.headerSubtitle {
+  margin-top: 0.25rem;
+  color: #cbd5e1;
+}
+
+.gridThree {
+  display: grid;
+  gap: 1rem;
+}
+
+.gridTwo {
+  display: grid;
+  gap: 1rem;
+}
+
+.cardLink {
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1.25rem;
+  transition: background-color 0.18s ease;
+}
+
+.cardLink:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.cardRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.cardLead {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cardIcon {
+  height: 3rem;
+  width: 3rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  display: grid;
+  place-items: center;
+  font-size: 1.2rem;
+}
+
+.cardLabel {
+  font-size: 0.875rem;
+  color: #cbd5e1;
+}
+
+.cardValue {
+  margin-top: 0.25rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.arrow {
+  opacity: 0.4;
+  transition: opacity 0.18s ease;
+}
+
+.cardLink:hover .arrow {
+  opacity: 0.8;
+}
+
+.panel {
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1.25rem;
+}
+
+.panelTitle {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.panelText {
+  color: #cbd5e1;
+}
+
+@media (min-width: 768px) {
+  .gridThree {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .gridTwo {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

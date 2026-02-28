@@ -1,0 +1,270 @@
+.shellRoot {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.shellLayout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.contentCol {
+  display: flex;
+  min-height: 100vh;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.mobileTopbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+}
+
+.mobileTopbarHiddenDesktop {
+  display: block;
+}
+
+.mainContent {
+  min-width: 0;
+  flex: 1;
+  overflow-x: hidden;
+  padding: 0.75rem;
+}
+
+.sidebar {
+  display: none;
+  height: 100vh;
+  width: 280px;
+  flex-direction: column;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(14px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 1.25rem 1rem;
+}
+
+.brandIcon {
+  display: grid;
+  height: 2.75rem;
+  width: 2.75rem;
+  place-items: center;
+  border-radius: 1rem;
+  background: rgba(147, 51, 234, 0.9);
+  color: #fff;
+  box-shadow: 0 0 40px rgba(168, 85, 247, 0.22);
+}
+
+.brandName {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.brandSub {
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.nav {
+  flex: 1;
+  padding: 0 0.75rem;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  transition: background-color 0.18s ease;
+}
+
+.navItem:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.navItemActive {
+  background: rgba(147, 51, 234, 0.25);
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.18);
+  outline: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.navLabel {
+  font-size: 0.94rem;
+  font-weight: 500;
+}
+
+.iconSoft {
+  opacity: 0.9;
+}
+
+.iconSoftAlt {
+  opacity: 0.8;
+}
+
+.sidebarFooter {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.9rem 0.75rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.footerBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.7rem 0.9rem;
+  text-align: left;
+  transition: background-color 0.18s ease;
+}
+
+.footerBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mobileHeader {
+  height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.9rem;
+}
+
+.mobileBrand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.mobileBrandIcon {
+  height: 2.2rem;
+  width: 2.2rem;
+  border-radius: 0.75rem;
+  display: grid;
+  place-items: center;
+  background: rgba(124, 58, 237, 0.9);
+  font-weight: 700;
+}
+
+.mobileBrandName {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.mobileBrandSub {
+  font-size: 0.72rem;
+  color: #b6c2d6;
+  line-height: 1.1;
+}
+
+.mobileMenuBtn {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.6rem;
+  padding: 0.45rem 0.65rem;
+  font-size: 0.85rem;
+}
+
+.mobileMenuBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.drawerBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.drawer {
+  position: fixed;
+  z-index: 50;
+  top: 3.9rem;
+  left: 0.75rem;
+  right: 0.75rem;
+  max-width: 24rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(2, 6, 23, 0.95);
+  backdrop-filter: blur(12px);
+  padding: 0.45rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+}
+
+.drawerHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.45rem 0.6rem;
+}
+
+.drawerTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.drawerCloseBtn {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.55rem;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.82rem;
+}
+
+.drawerCloseBtn:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.drawerList {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.drawerItem {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  border-radius: 0.75rem;
+  border: 1px solid transparent;
+  padding: 0.55rem 0.65rem;
+}
+
+.drawerItem:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.drawerItemActive {
+  border-color: rgba(139, 92, 246, 0.3);
+  background: rgba(139, 92, 246, 0.2);
+}
+
+.drawerLabel {
+  font-size: 0.9rem;
+}
+
+@media (min-width: 768px) {
+  .sidebar {
+    display: flex;
+  }
+
+  .mobileTopbarHiddenDesktop {
+    display: none;
+  }
+
+  .mainContent {
+    padding: 2rem;
+  }
+}

@@ -1,0 +1,299 @@
+.loading {
+  padding: 24px;
+  color: var(--text-muted);
+}
+
+.main {
+  display: grid;
+  gap: 24px;
+  padding: 24px;
+  max-width: 1240px;
+  margin-inline: auto;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin-top: 4px;
+  color: var(--text-muted);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.card {
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: rgba(15, 23, 42, 0.56);
+  padding: 24px;
+  display: grid;
+  gap: 16px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.26);
+}
+
+.cardNarrow {
+  max-width: 42rem;
+}
+
+.h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.help {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.label {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: rgba(2, 6, 23, 0.45);
+  padding: 12px 16px;
+  outline: none;
+}
+
+.textarea {
+  min-height: 96px;
+}
+
+.input:focus,
+.textarea:focus {
+  border-color: var(--line-strong);
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+}
+
+.grow {
+  flex: 1;
+}
+
+.rowActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btnPrimary {
+  border-radius: 12px;
+  background: var(--brand);
+  padding: 12px 20px;
+  font-weight: 600;
+}
+
+.btnPrimary:hover {
+  background: var(--brand-strong);
+}
+
+.btnSecondary {
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: rgba(30, 41, 59, 0.74);
+  padding: 12px 20px;
+}
+
+.btnSecondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btnPrimary:disabled,
+.btnSecondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btnGenerate {
+  align-self: flex-end;
+}
+
+.categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.categoryBtn {
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(30, 41, 59, 0.68);
+  padding: 8px 16px;
+}
+
+.categoryBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.categoryBtnActive {
+  border-color: rgba(167, 139, 250, 0.4);
+  background: rgba(124, 58, 237, 0.8);
+}
+
+.list {
+  display: grid;
+  gap: 16px;
+}
+
+.item {
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(2, 6, 23, 0.38);
+  padding: 20px;
+}
+
+.itemHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.itemTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.chip {
+  margin-top: 4px;
+  display: inline-block;
+  border-radius: 999px;
+  border: 1px solid var(--line-soft);
+  background: var(--surface-2);
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.dangerGhost {
+  color: #fca5a5;
+}
+
+.dangerGhost:hover {
+  color: #fecaca;
+}
+
+.itemBody {
+  margin-top: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(2, 6, 23, 0.34);
+  padding: 16px;
+}
+
+.line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.line + .line {
+  margin-top: 12px;
+}
+
+.lineLabel {
+  color: var(--text-muted);
+}
+
+.lineValue {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ghostIcon {
+  color: var(--text-muted);
+}
+
+.ghostIcon:hover {
+  color: var(--text-main);
+}
+
+.link {
+  color: #c4b5fd;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.link:hover {
+  color: #ddd6fe;
+}
+
+.itemFooter {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btnSmall {
+  border-radius: 10px;
+  border: 1px solid var(--line-soft);
+  background: var(--surface-2);
+  padding: 4px 12px;
+  font-size: 0.875rem;
+}
+
+.btnSmall:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.empty {
+  border-radius: 16px;
+  border: 1px solid var(--line-soft);
+  background: var(--surface-2);
+  padding: 32px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.error {
+  font-size: 0.875rem;
+  color: #fca5a5;
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding: 16px;
+  }
+
+  .row {
+    flex-direction: column;
+  }
+}

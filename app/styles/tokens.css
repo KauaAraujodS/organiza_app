@@ -1,0 +1,14 @@
+:root {
+  --app-bg: #05070c;
+  --app-fg: #f1f5f9;
+  --app-muted: #9eb2cc;
+  --app-border: rgba(255, 255, 255, 0.1);
+  --app-surface: rgba(2, 6, 12, 0.72);
+  --app-surface-2: rgba(12, 20, 34, 0.82);
+  --app-primary: #7c3aed;
+  --app-primary-2: #9333ea;
+  --app-success: #4ade80;
+  --app-danger: #fb7185;
+  --radius-md: 0.7rem;
+  --radius-lg: 1rem;
+}
