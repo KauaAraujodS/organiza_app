@@ -44,6 +44,28 @@ type DriveCardView = {
   locked: boolean;
 };
 
+type DesktopOpenPayload = {
+  fileId: string;
+  fileName: string;
+  mimeType: string;
+  accessToken: string;
+  webViewLink?: string | null;
+};
+
+type DesktopOpenResult = {
+  ok: boolean;
+  path?: string;
+  error?: string;
+};
+
+declare global {
+  interface Window {
+    organizaDesktop?: {
+      openDriveFile: (payload: DesktopOpenPayload) => Promise<DesktopOpenResult>;
+    };
+  }
+}
+
 const APP_FOLDER_NAME = "OrganizaApp";
 const LS_TOKEN_KEY = "organiza_google_token";
 const ROOT_CACHE_KEY = "organiza_drive_root_id";
@@ -529,8 +551,11 @@ export default function FilesPage() {
     setUiMsg("");
 
     try {
+      const validAccessToken = await getValidAccessToken();
+      setAccessToken(validAccessToken);
+
       const fd = new FormData();
-      fd.set("accessToken", accessToken);
+      fd.set("accessToken", validAccessToken);
       fd.set("parentId", folderId || "root");
       fd.set("file", file);
 
@@ -718,8 +743,32 @@ export default function FilesPage() {
     await loadList(folderId, accessToken, userId);
   }
 
-  function openDrive(it: DriveItem) {
+  async function openDrive(it: DriveItem) {
     if (requireUnlock(it, "open-file")) return;
+
+    const desktop = window.organizaDesktop;
+    if (!isFolder(it) && desktop?.openDriveFile) {
+      try {
+        const validAccessToken = await getValidAccessToken();
+        const result = await desktop.openDriveFile({
+          fileId: it.id,
+          fileName: it.name,
+          mimeType: it.mimeType || "",
+          accessToken: validAccessToken,
+          webViewLink: it.webViewLink || null,
+        });
+
+        if (result?.ok) return;
+
+        if (result?.error) {
+          setUiMsg(`Erro ao abrir no PC: ${result.error}. Abrindo no Drive...`);
+        }
+      } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : "erro";
+        setUiMsg(`Erro ao abrir no PC: ${message}. Abrindo no Drive...`);
+      }
+    }
+
     openDriveLink(it);
   }
 
@@ -760,7 +809,7 @@ export default function FilesPage() {
       await enterFolder(unlockTarget);
       return;
     }
-    openDriveLink(unlockTarget);
+    await openDrive(unlockTarget);
   }
 
   function askDelete(it: DriveItem) {
@@ -944,7 +993,13 @@ export default function FilesPage() {
 
                       <div className={styles.itemActions}>
                         <button
-                          onClick={() => (isFolder(it) ? goIntoFolder(it) : openDrive(it))}
+                          onClick={() => {
+                            if (isFolder(it)) {
+                              void goIntoFolder(it);
+                              return;
+                            }
+                            void openDrive(it);
+                          }}
                           className={styles.openBtn}
                           style={{ backgroundColor: view.softBg, borderColor: view.softBorder }}
                         >
