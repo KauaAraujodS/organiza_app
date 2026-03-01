@@ -1,19 +1,23 @@
 .shellRoot {
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 .shellLayout {
   display: flex;
-  min-height: 100vh;
+  height: 100%;
+  min-height: 0;
 }
 
 .contentCol {
   display: flex;
-  min-height: 100vh;
+  min-height: 0;
   min-width: 0;
   flex: 1;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .mobileTopbar {
@@ -31,15 +35,25 @@
 
 .mainContent {
   min-width: 0;
+  min-height: 0;
   flex: 1;
   overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 0.75rem;
+}
+
+.mainContent > * {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .sidebar {
   display: none;
   height: 100vh;
+  height: 100dvh;
   width: 252px;
+  flex: 0 0 252px;
   flex-direction: column;
   border-right: 1px solid var(--line-soft);
   background: color-mix(in oklab, var(--surface-2) 92%, transparent);

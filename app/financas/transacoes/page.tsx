@@ -9,6 +9,8 @@ import { deleteTransactionAction, getAttachmentSignedUrlAction } from "./actions
 import TransactionTable from "./TransactionTable";
 import TransactionFormModal from "./TransactionFormModal";
 
+const PAGE_SIZE = 120;
+
 export default function FinanceTransactionsPage() {
   const [accounts, setAccounts] = useState<FinanceAccount[]>([]);
   const [categories, setCategories] = useState<FinanceCategory[]>([]);
@@ -17,40 +19,88 @@ export default function FinanceTransactionsPage() {
   const [transactions, setTransactions] = useState<FinanceTransaction[]>([]);
   const [tagLinks, setTagLinks] = useState<Array<{ transaction_id: string; tag_id: string }>>([]);
   const [attachments, setAttachments] = useState<FinanceAttachment[]>([]);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<FinanceTransaction | null>(null);
   const [msg, setMsg] = useState("");
   const [pending, startTransition] = useTransition();
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (offset = 0) => {
     setMsg("");
-    const [accRes, catRes, tagRes, debtRes, txRes, txTagRes, attachmentRes] = await Promise.all([
-      supabaseClient.from("finance_accounts").select("*").eq("archived", false).order("name"),
-      supabaseClient.from("finance_categories").select("*").eq("archived", false).order("name"),
-      supabaseClient.from("finance_tags").select("*").order("name"),
-      supabaseClient.from("finance_debts").select("*").order("created_at", { ascending: false }),
+    const [accRes, catRes, tagRes, debtRes, txRes] = await Promise.all([
+      supabaseClient
+        .from("finance_accounts")
+        .select("id,name,type,currency,opening_balance_cents,archived,created_at,updated_at,user_id")
+        .eq("archived", false)
+        .order("name"),
+      supabaseClient
+        .from("finance_categories")
+        .select("id,name,kind,parent_id,color,icon,archived,created_at,updated_at,user_id")
+        .eq("archived", false)
+        .order("name"),
+      supabaseClient
+        .from("finance_tags")
+        .select("id,name,color,created_at,updated_at,user_id")
+        .order("name"),
+      supabaseClient
+        .from("finance_debts")
+        .select("id,name,creditor,total_amount_cents,outstanding_cents,interest_rate_monthly,due_on,status,notes,created_at,updated_at,user_id")
+        .order("created_at", { ascending: false }),
       supabaseClient
         .from("finance_transactions")
-        .select("*")
+        .select("id,user_id,type,account_id,category_id,transfer_group_id,recurring_rule_id,installment_group_id,installment_number,installment_total,debt_id,amount_cents,occurred_on,due_on,description,notes,is_cleared,created_at,updated_at")
         .order("occurred_on", { ascending: false })
-        .order("created_at", { ascending: false }),
-      supabaseClient.from("finance_transaction_tags").select("transaction_id,tag_id"),
-      supabaseClient.from("finance_attachments").select("*"),
+        .order("created_at", { ascending: false })
+        .range(offset, offset + PAGE_SIZE - 1),
     ]);
 
-    const err = accRes.error || catRes.error || tagRes.error || debtRes.error || txRes.error || txTagRes.error || attachmentRes.error;
+    const err = accRes.error || catRes.error || tagRes.error || debtRes.error || txRes.error;
     if (err) {
       setMsg(err.message);
       return;
     }
 
-    setAccounts((accRes.data || []) as FinanceAccount[]);
-    setCategories((catRes.data || []) as FinanceCategory[]);
-    setTags((tagRes.data || []) as FinanceTag[]);
-    setDebts((debtRes.data || []) as FinanceDebt[]);
-    setTransactions((txRes.data || []) as FinanceTransaction[]);
-    setTagLinks((txTagRes.data || []) as Array<{ transaction_id: string; tag_id: string }>);
-    setAttachments((attachmentRes.data || []) as FinanceAttachment[]);
+    const txRows = (txRes.data || []) as FinanceTransaction[];
+    const txIds = txRows.map((tx) => tx.id);
+
+    const [txTagRes, attachmentRes] = txIds.length
+      ? await Promise.all([
+          supabaseClient
+            .from("finance_transaction_tags")
+            .select("transaction_id,tag_id")
+            .in("transaction_id", txIds),
+          supabaseClient
+            .from("finance_attachments")
+            .select("id,transaction_id,file_name,user_id,bucket,storage_path,mime_type,size_bytes,created_at")
+            .in("transaction_id", txIds),
+        ])
+      : [
+          { data: [], error: null } as { data: Array<{ transaction_id: string; tag_id: string }>; error: null },
+          { data: [], error: null } as { data: FinanceAttachment[]; error: null },
+        ];
+
+    const relErr = txTagRes.error || attachmentRes.error;
+    if (relErr) {
+      setMsg(relErr.message);
+      return;
+    }
+
+    if (offset === 0) {
+      setAccounts((accRes.data || []) as FinanceAccount[]);
+      setCategories((catRes.data || []) as FinanceCategory[]);
+      setTags((tagRes.data || []) as FinanceTag[]);
+      setDebts((debtRes.data || []) as FinanceDebt[]);
+      setTransactions(txRows);
+      setTagLinks((txTagRes.data || []) as Array<{ transaction_id: string; tag_id: string }>);
+      setAttachments((attachmentRes.data || []) as FinanceAttachment[]);
+    } else {
+      setTransactions((prev) => [...prev, ...txRows]);
+      setTagLinks((prev) => [...prev, ...((txTagRes.data || []) as Array<{ transaction_id: string; tag_id: string }>)]);
+      setAttachments((prev) => [...prev, ...((attachmentRes.data || []) as FinanceAttachment[])]);
+    }
+
+    setHasMore(txRows.length === PAGE_SIZE);
   }, []);
 
   useEffect(() => {
@@ -64,6 +114,12 @@ export default function FinanceTransactionsPage() {
       cancelled = true;
     };
   }, [load]);
+
+  function loadMore() {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    void load(transactions.length).finally(() => setLoadingMore(false));
+  }
 
   const accountById = Object.fromEntries(accounts.map((a) => [a.id, a]));
   const categoryById = Object.fromEntries(categories.map((c) => [c.id, c]));
@@ -140,12 +196,20 @@ export default function FinanceTransactionsPage() {
         onOpenAttachment={openAttachment}
       />
 
+      {hasMore ? (
+        <div className={styles.row}>
+          <button className={styles.ghostButton} onClick={loadMore} disabled={loadingMore}>
+            {loadingMore ? "Carregando..." : "Carregar mais transações"}
+          </button>
+        </div>
+      ) : null}
+
       {msg ? <div className={styles.msg}>{msg}</div> : null}
 
       <TransactionFormModal
         open={open}
         onClose={() => setOpen(false)}
-        onSuccess={load}
+        onSuccess={() => load(0)}
         accounts={accounts}
         categories={categories}
         tags={tags}

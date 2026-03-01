@@ -22,19 +22,27 @@ export default function FinanceDashboardPage() {
     const { start, end } = monthRange(new Date());
 
     const [accountsRes, categoriesRes, txRes, monthRes, cardsRes] = await Promise.all([
-      supabaseClient.from("finance_accounts").select("*").eq("archived", false),
-      supabaseClient.from("finance_categories").select("*").eq("archived", false),
+      supabaseClient
+        .from("finance_accounts")
+        .select("id,name,opening_balance_cents")
+        .eq("archived", false),
+      supabaseClient
+        .from("finance_categories")
+        .select("id,name")
+        .eq("archived", false),
       supabaseClient
         .from("finance_transactions")
-        .select("*")
+        .select("id,account_id,category_id,amount_cents,occurred_on,due_on,description,notes,type,is_cleared,created_at,updated_at,user_id,transfer_group_id,recurring_rule_id,installment_group_id,installment_number,installment_total,debt_id")
         .order("occurred_on", { ascending: false })
         .limit(30),
       supabaseClient
         .from("finance_transactions")
-        .select("id,amount_cents,occurred_on,category_id,due_on")
+        .select("amount_cents,category_id,due_on")
         .gte("occurred_on", start)
         .lte("occurred_on", end),
-      supabaseClient.from("finance_credit_card_profiles").select("*"),
+      supabaseClient
+        .from("finance_credit_card_profiles")
+        .select("id,account_id,current_due_cents"),
     ]);
 
     const err = accountsRes.error || categoriesRes.error || txRes.error || monthRes.error || cardsRes.error;

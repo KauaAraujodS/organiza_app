@@ -36,7 +36,10 @@ export default function FinanceReportsPage() {
         .select("id,amount_cents,occurred_on,description,category_id")
         .order("occurred_on", { ascending: false })
         .order("created_at", { ascending: false }),
-      supabaseClient.from("finance_categories").select("*").eq("archived", false),
+      supabaseClient
+        .from("finance_categories")
+        .select("id,name,color,kind,parent_id,icon,archived,created_at,updated_at,user_id")
+        .eq("archived", false),
     ]);
 
     const err = txRes.error || catRes.error;

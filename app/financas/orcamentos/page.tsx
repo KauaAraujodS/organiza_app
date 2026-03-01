@@ -31,7 +31,11 @@ export default function FinanceBudgetsPage() {
     setMsg("");
     const [budgetsRes, categoriesRes] = await Promise.all([
       supabaseClient.from("finance_budgets").select("*").order("period_start", { ascending: false }),
-      supabaseClient.from("finance_categories").select("*").eq("archived", false).order("name"),
+      supabaseClient
+        .from("finance_categories")
+        .select("id,name,kind,parent_id,color,icon,archived,created_at,updated_at,user_id")
+        .eq("archived", false)
+        .order("name"),
     ]);
 
     if (budgetsRes.error || categoriesRes.error) {
@@ -53,7 +57,7 @@ export default function FinanceBudgetsPage() {
 
     const txRes = await supabaseClient
       .from("finance_transactions")
-      .select("*")
+      .select("id,amount_cents,occurred_on,category_id")
       .gte("occurred_on", minDate)
       .lte("occurred_on", maxDate);
 

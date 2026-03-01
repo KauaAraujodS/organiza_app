@@ -73,13 +73,15 @@ export async function POST(req: Request) {
         .map((cal) => ({
           id: String(cal.id),
           summary: String(cal.summaryOverride || cal.summary || "Calendário"),
-        }));
+        }))
+        .slice(0, 10);
 
-      const chunks: Array<Promise<Array<Record<string, unknown>>>> = [];
-      for (const cal of calendars) {
-        chunks.push(fetchEvents(cal.id, cal.summary));
+      const results: Array<Array<Record<string, unknown>>> = [];
+      for (let i = 0; i < calendars.length; i += 4) {
+        const batch = calendars.slice(i, i + 4);
+        const partial = await Promise.all(batch.map((cal) => fetchEvents(cal.id, cal.summary)));
+        results.push(...partial);
       }
-      const results = await Promise.all(chunks);
       const merged = results.flat();
 
       return NextResponse.json({ items: merged });

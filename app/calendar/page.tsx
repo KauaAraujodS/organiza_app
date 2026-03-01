@@ -24,6 +24,7 @@ type CalendarEvent = {
   end?: string;
   allDay: boolean;
   color?: string;
+  colorId?: string;
   googleUrl?: string;
   description?: string;
   calendarId?: string;
@@ -50,6 +51,10 @@ function pad(n: number) {
 
 function formatYmd(d: Date) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function formatHm(d: Date) {
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function monthLabel(d: Date) {
@@ -85,6 +90,7 @@ function parseGoogleEvents(items: GoogleEvent[]): CalendarEvent[] {
         end: it.end?.dateTime || end.toISOString(),
         allDay: false,
         color: colorFromId(it.colorId),
+        colorId: it.colorId,
         googleUrl: it.htmlLink,
         calendarId: it.calendarId || "primary",
         calendarSummary: it.calendarSummary || "Agenda principal",
@@ -104,6 +110,7 @@ function parseGoogleEvents(items: GoogleEvent[]): CalendarEvent[] {
         end: `${formatYmd(end)}T00:00:00`,
         allDay: true,
         color: colorFromId(it.colorId),
+        colorId: it.colorId,
         googleUrl: it.htmlLink,
         calendarId: it.calendarId || "primary",
         calendarSummary: it.calendarSummary || "Agenda principal",
@@ -178,6 +185,8 @@ export default function CalendarPage() {
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [openCreateModal, setOpenCreateModal] = useState(false);
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const [editingCalendarId, setEditingCalendarId] = useState<string | null>(null);
 
   const monthStart = useMemo(() => new Date(monthRef.getFullYear(), monthRef.getMonth(), 1), [monthRef]);
   const monthEndExclusive = useMemo(() => new Date(monthRef.getFullYear(), monthRef.getMonth() + 1, 1), [monthRef]);
@@ -244,6 +253,8 @@ export default function CalendarPage() {
     setStartTime("09:00");
     setEndTime("10:00");
     setColorId("9");
+    setEditingEventId(null);
+    setEditingCalendarId(null);
   }
 
   const loadEvents = useCallback(async () => {
@@ -294,10 +305,48 @@ export default function CalendarPage() {
   }, []);
 
   const onOpenCreateModal = useCallback(() => {
+    setEditingEventId(null);
+    setEditingCalendarId(null);
     setStartDate(selectedYmd);
     setEndDate(selectedYmd);
     setOpenCreateModal(true);
   }, [selectedYmd]);
+
+  const onOpenEditModal = useCallback((ev: CalendarEvent) => {
+    const start = new Date(ev.start);
+    const rawEnd = new Date(ev.end || ev.start);
+    if (Number.isNaN(start.getTime()) || Number.isNaN(rawEnd.getTime())) {
+      setMsg("Não foi possível abrir o evento para edição.");
+      return;
+    }
+
+    setTitle(ev.title || "");
+    setDescription(ev.description || "");
+    setGuests("");
+    setColorId(ev.colorId || "9");
+    setEditingEventId(ev.id);
+    setEditingCalendarId(ev.calendarId || "primary");
+
+    if (ev.allDay) {
+      const inclusiveEnd = new Date(rawEnd);
+      inclusiveEnd.setDate(inclusiveEnd.getDate() - 1);
+      if (inclusiveEnd < start) inclusiveEnd.setTime(start.getTime());
+
+      setAllDay(true);
+      setStartDate(formatYmd(start));
+      setEndDate(formatYmd(inclusiveEnd));
+      setStartTime("09:00");
+      setEndTime("10:00");
+    } else {
+      setAllDay(false);
+      setStartDate(formatYmd(start));
+      setEndDate(formatYmd(rawEnd));
+      setStartTime(formatHm(start));
+      setEndTime(formatHm(rawEnd));
+    }
+
+    setOpenCreateModal(true);
+  }, []);
 
   useEffect(() => {
     if (selectedDate.getFullYear() !== monthRef.getFullYear() || selectedDate.getMonth() !== monthRef.getMonth()) {
@@ -305,7 +354,7 @@ export default function CalendarPage() {
     }
   }, [monthRef, selectedDate]);
 
-  async function createEvent(e: FormEvent) {
+  async function saveEvent(e: FormEvent) {
     e.preventDefault();
     setMsg("");
 
@@ -331,11 +380,17 @@ export default function CalendarPage() {
         .map((s) => s.trim())
         .filter(Boolean);
 
-      const r = await fetch("/api/calendar/create", {
-        method: "POST",
+      const isEditing = Boolean(editingEventId);
+      const endpoint = isEditing ? "/api/calendar/update" : "/api/calendar/create";
+      const method = isEditing ? "PATCH" : "POST";
+
+      const r = await fetch(endpoint, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           accessToken,
+          eventId: editingEventId || undefined,
+          calendarId: editingCalendarId || "primary",
           event: {
             title: title.trim(),
             description: description.trim(),
@@ -352,13 +407,15 @@ export default function CalendarPage() {
       });
 
       const data = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(data?.error || "Falha ao criar evento.");
+      if (!r.ok) {
+        throw new Error(data?.error || (isEditing ? "Falha ao editar evento." : "Falha ao criar evento."));
+      }
 
       resetCreateForm();
       setOpenCreateModal(false);
       await loadEvents();
     } catch (err: unknown) {
-      setMsg(err instanceof Error ? err.message : "Falha ao criar evento.");
+      setMsg(err instanceof Error ? err.message : "Falha ao salvar evento.");
     } finally {
       setSaving(false);
     }
@@ -478,23 +535,41 @@ export default function CalendarPage() {
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => deleteEvent(ev.id, ev.calendarId)}
-                    disabled={deletingId === ev.id}
-                    className={styles.deleteBtn}
-                    aria-label="Excluir evento"
-                    title="Excluir evento"
-                  >
-                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                      />
-                    </svg>
-                  </button>
+                  <div className={styles.eventActions}>
+                    <button
+                      type="button"
+                      onClick={() => onOpenEditModal(ev)}
+                      className={styles.editBtn}
+                      aria-label="Editar evento"
+                      title="Editar evento"
+                    >
+                      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L12 15l-4 1 1-4 8.586-8.586z"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => deleteEvent(ev.id, ev.calendarId)}
+                      disabled={deletingId === ev.id}
+                      className={styles.deleteBtn}
+                      aria-label="Excluir evento"
+                      title="Excluir evento"
+                    >
+                      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -510,8 +585,12 @@ export default function CalendarPage() {
           setOpenCreateModal(false);
           resetCreateForm();
         }}
-        title="Novo evento"
-        subtitle={`Data selecionada: ${selectedDate.toLocaleDateString("pt-BR")}`}
+        title={editingEventId ? "Editar evento" : "Novo evento"}
+        subtitle={
+          editingEventId
+            ? "Ajuste as informações do evento selecionado"
+            : `Data selecionada: ${selectedDate.toLocaleDateString("pt-BR")}`
+        }
         maxWidthClass="max-w-xl"
         maxWidthPx={680}
         footer={
@@ -532,12 +611,12 @@ export default function CalendarPage() {
               disabled={saving}
               className={styles.modalSubmit}
             >
-              {saving ? "Salvando..." : "Criar evento"}
+              {saving ? "Salvando..." : editingEventId ? "Salvar alterações" : "Criar evento"}
             </button>
           </>
         }
       >
-        <form id="calendar-create-form" onSubmit={createEvent} className={styles.form}>
+        <form id="calendar-create-form" onSubmit={saveEvent} className={styles.form}>
           <div className={styles.formInfo}>
             Evento em <strong>{startDate || selectedDate.toLocaleDateString("pt-BR")}</strong>
           </div>

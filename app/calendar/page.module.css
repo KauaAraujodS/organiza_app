@@ -1,5 +1,7 @@
 .main {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   padding: 1.25rem 1.5rem 1.75rem;
   display: flex;
   flex-direction: column;
@@ -82,6 +84,9 @@
 }
 
 .calendarCard {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   border-radius: 1.25rem;
   border: 1px solid var(--line-soft);
   background: color-mix(in oklab, var(--surface-2) 92%, transparent);
@@ -134,6 +139,8 @@
 }
 
 .weekHeader {
+  width: 100%;
+  min-width: 0;
   margin-bottom: 0.6rem;
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -147,6 +154,8 @@
 }
 
 .grid {
+  width: 100%;
+  min-width: 0;
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 0.6rem;
@@ -340,18 +349,37 @@
   font-size: 0.9rem;
 }
 
+.eventActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.editBtn,
 .deleteBtn {
   border: 0;
   background: transparent;
-  color: #fb7185;
   cursor: pointer;
   padding: 0.25rem;
+}
+
+.editBtn {
+  color: #60a5fa;
+}
+
+.editBtn:hover {
+  color: #93c5fd;
+}
+
+.deleteBtn {
+  color: #fb7185;
 }
 
 .deleteBtn:hover {
   color: #fda4af;
 }
 
+.editBtn:disabled,
 .deleteBtn:disabled {
   opacity: 0.55;
   cursor: default;
