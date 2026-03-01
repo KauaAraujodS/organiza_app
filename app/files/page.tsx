@@ -554,18 +554,47 @@ export default function FilesPage() {
       const validAccessToken = await getValidAccessToken();
       setAccessToken(validAccessToken);
 
-      const fd = new FormData();
-      fd.set("accessToken", validAccessToken);
-      fd.set("parentId", folderId || "root");
-      fd.set("file", file);
+      // Upload direto no Drive para evitar limite de payload da hospedagem.
+      const boundary = `organizaapp_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+      const metadata = {
+        name: file.name,
+        parents: [folderId || "root"],
+      };
 
-      const uploadRes = await fetch("/api/drive/upload", {
+      const delimiter = `\r\n--${boundary}\r\n`;
+      const closeDelimiter = `\r\n--${boundary}--`;
+      const fileBuffer = await file.arrayBuffer();
+
+      const multipartBody = new Blob([
+        delimiter,
+        "Content-Type: application/json; charset=UTF-8\r\n\r\n",
+        JSON.stringify(metadata),
+        delimiter,
+        `Content-Type: ${file.type || "application/octet-stream"}\r\n\r\n`,
+        new Uint8Array(fileBuffer),
+        closeDelimiter,
+      ]);
+
+      const uploadRes = await fetch(
+        "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,parents,webViewLink,webContentLink",
+        {
         method: "POST",
-        body: fd,
-      });
+        headers: {
+          Authorization: `Bearer ${validAccessToken}`,
+          "Content-Type": `multipart/related; boundary=${boundary}`,
+        },
+        body: multipartBody,
+      }
+      );
+
       const uploadData = await uploadRes.json().catch(() => ({}));
       if (!uploadRes.ok) {
-        throw new Error(uploadData?.error?.error?.message || uploadData?.error?.message || "Erro no upload");
+        throw new Error(
+          uploadData?.error?.error?.message ||
+            uploadData?.error?.message ||
+            uploadData?.error_description ||
+            `Falha no upload (${uploadRes.status})`
+        );
       }
 
       const created = uploadData as DriveItem;
@@ -590,7 +619,7 @@ export default function FilesPage() {
 
       setUiMsg(`✅ Upload OK: ${created.name}`);
       driveFolderCache.delete(`${userId}:${folderId}`);
-      await loadList(folderId, accessToken, userId);
+      await loadList(folderId, validAccessToken, userId);
     } catch (e: unknown) {
       setUiMsg(`Erro no upload: ${e instanceof Error ? e.message : "erro"}`);
     } finally {
