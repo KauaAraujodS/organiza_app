@@ -110,7 +110,8 @@ export default function LoginPage() {
         options: {
           redirectTo: `${origin}/auth/callback`,
           // Drive: permitir ver/criar/editar/excluir SOMENTE arquivos que o app usar/criar
-          scopes: "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar.events",
+          scopes:
+            "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly",
           
           queryParams: {
             access_type: "offline",

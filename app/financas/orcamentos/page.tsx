@@ -66,10 +66,15 @@ export default function FinanceBudgetsPage() {
   }, []);
 
   useEffect(() => {
-    const id = setTimeout(() => {
-      void load();
-    }, 0);
-    return () => clearTimeout(id);
+    let cancelled = false;
+    Promise.resolve().then(() => {
+      if (!cancelled) {
+        void load();
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [load]);
 
   useEffect(() => {

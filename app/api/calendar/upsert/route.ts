@@ -1,5 +1,30 @@
 import { NextResponse } from "next/server";
 
+function shouldRecreateEventOnUpdateError(status: number, message: string) {
+  const msg = message.toLowerCase();
+  return (
+    status === 404 ||
+    status === 410 ||
+    msg.includes("resource has been deleted") ||
+    msg.includes("not found")
+  );
+}
+
+function toLocalDateTime(date: string, hh: number, mm: number) {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${date}T${pad(hh)}:${pad(mm)}:00`;
+}
+
+function addDaysYmd(date: string, days: number) {
+  const [y, m, d] = date.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  dt.setUTCDate(dt.getUTCDate() + days);
+  const yy = dt.getUTCFullYear();
+  const mm = String(dt.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(dt.getUTCDate()).padStart(2, "0");
+  return `${yy}-${mm}-${dd}`;
+}
+
 export async function POST(req: Request) {
   try {
     const { accessToken, task } = await req.json();
@@ -16,6 +41,7 @@ export async function POST(req: Request) {
       reminder_minutes,
       recurrence_rule,
       google_event_id,
+      timezone,
     } = task as {
       title: string;
       description?: string;
@@ -24,6 +50,7 @@ export async function POST(req: Request) {
       reminder_minutes?: number | null;
       recurrence_rule?: string | null; // "RRULE:FREQ=WEEKLY"
       google_event_id?: string | null;
+      timezone?: string | null;
     };
 
     if (!title) return NextResponse.json({ error: "Missing title" }, { status: 400 });
@@ -35,6 +62,10 @@ export async function POST(req: Request) {
     };
 
     const cleanDueTime = typeof due_time === "string" ? due_time.trim() : "";
+    const eventTimezone =
+      typeof timezone === "string" && timezone.trim()
+        ? timezone.trim()
+        : "UTC";
     if (cleanDueTime) {
       const [hhRaw, mmRaw] = cleanDueTime.split(":");
       const hh = Number(hhRaw);
@@ -70,9 +101,19 @@ export async function POST(req: Request) {
       if (Number.isNaN(startLocal.getTime())) {
         return NextResponse.json({ error: "Invalid start datetime" }, { status: 400 });
       }
-      const endLocal = new Date(startLocal.getTime() + 60 * 60 * 1000);
-      eventBody.start = { dateTime: startLocal.toISOString() };
-      eventBody.end = { dateTime: endLocal.toISOString() };
+      const endTotalMinutes = hh * 60 + mm + 60;
+      const endDayOffset = Math.floor(endTotalMinutes / (24 * 60));
+      const endHour = Math.floor((endTotalMinutes % (24 * 60)) / 60);
+      const endMinute = endTotalMinutes % 60;
+      const endDateYmd = addDaysYmd(due_date, endDayOffset);
+      eventBody.start = {
+        dateTime: toLocalDateTime(due_date, hh, mm),
+        timeZone: eventTimezone,
+      };
+      eventBody.end = {
+        dateTime: toLocalDateTime(endDateYmd, endHour, endMinute),
+        timeZone: eventTimezone,
+      };
     } else {
       const due = new Date(`${due_date}T00:00:00`);
       if (Number.isNaN(due.getTime())) {
@@ -119,23 +160,26 @@ export async function POST(req: Request) {
       if (!r.ok) {
         const googleMsg = String(data?.error?.message || "");
         const isInvalidStart = googleMsg.toLowerCase().includes("invalid start time");
+        const shouldRecreate = shouldRecreateEventOnUpdateError(r.status, googleMsg);
 
-        // Fallback para eventos legados inconsistentes: remove e recria.
-        if (isInvalidStart) {
-          const del = await fetch(
-            `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events/${google_event_id}`,
-            {
-              method: "DELETE",
-              headers: { Authorization: `Bearer ${accessToken}` },
-            }
-          );
-
-          if (!del.ok && del.status !== 404) {
-            const delData = await del.json().catch(() => ({}));
-            return NextResponse.json(
-              { error: delData?.error?.message || "Falha ao limpar evento legado." },
-              { status: del.status }
+        // Fallback para eventos legados inconsistentes ou já apagados: recria.
+        if (isInvalidStart || shouldRecreate) {
+          if (isInvalidStart) {
+            const del = await fetch(
+              `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events/${google_event_id}`,
+              {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${accessToken}` },
+              }
             );
+
+            if (!del.ok && del.status !== 404 && del.status !== 410) {
+              const delData = await del.json().catch(() => ({}));
+              return NextResponse.json(
+                { error: delData?.error?.message || "Falha ao limpar evento legado." },
+                { status: del.status }
+              );
+            }
           }
 
           const create = await fetch(

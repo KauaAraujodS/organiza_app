@@ -35,6 +35,7 @@ type GoogleTok = {
 };
 
 const STORAGE_KEY = "organiza_google_token";
+let refreshInFlight: Promise<string> | null = null;
 
 export async function getValidAccessToken(): Promise<string> {
   const raw = localStorage.getItem(STORAGE_KEY);
@@ -55,24 +56,33 @@ export async function getValidAccessToken(): Promise<string> {
     throw new Error("Sem refreshToken. Faça logout e login com Google novamente.");
   }
 
-  const res = await fetch("/api/google/refresh", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refreshToken: tok.refreshToken }),
-  });
+  if (!refreshInFlight) {
+    refreshInFlight = (async () => {
+      const res = await fetch("/api/google/refresh", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken: tok.refreshToken }),
+      });
 
-  const data = await res.json();
+      const data = await res.json();
 
-  if (!res.ok) {
-    throw new Error(data?.error || "Falha ao renovar token");
+      if (!res.ok) {
+        throw new Error(data?.error || "Falha ao renovar token");
+      }
+
+      const refreshedNow = Math.floor(Date.now() / 1000);
+      const newTok: GoogleTok = {
+        ...tok,
+        accessToken: data.accessToken,
+        expiresAt: refreshedNow + Number(data.expiresIn),
+      };
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newTok));
+      return newTok.accessToken!;
+    })().finally(() => {
+      refreshInFlight = null;
+    });
   }
 
-  const newTok: GoogleTok = {
-    ...tok,
-    accessToken: data.accessToken,
-    expiresAt: now + Number(data.expiresIn),
-  };
-
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(newTok));
-  return newTok.accessToken!;
+  return refreshInFlight;
 }

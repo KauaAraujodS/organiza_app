@@ -2,11 +2,13 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const { accessToken, timeMin, timeMax, timezone } = (await req.json()) as {
+    const { accessToken, timeMin, timeMax, timezone, includeAllCalendars, maxResults } = (await req.json()) as {
       accessToken?: string;
       timeMin?: string;
       timeMax?: string;
       timezone?: string;
+      includeAllCalendars?: boolean;
+      maxResults?: number;
     };
 
     if (!accessToken) {
@@ -16,29 +18,76 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing timeMin/timeMax" }, { status: 400 });
     }
 
+    const safeMaxResults = Math.min(Math.max(Number(maxResults) || 400, 1), 1000);
+
     const params = new URLSearchParams({
       singleEvents: "true",
       orderBy: "startTime",
       showDeleted: "false",
-      maxResults: "2500",
+      maxResults: String(safeMaxResults),
       timeMin,
       timeMax,
+      fields:
+        "items(id,summary,description,htmlLink,colorId,start,end,status),nextPageToken",
     });
     if (timezone) params.set("timeZone", timezone);
 
-    const calendarId = "primary";
-    const url = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?${params.toString()}`;
-    const r = await fetch(url, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-      cache: "no-store",
-    });
+    const fetchEvents = async (calendarId: string, calendarSummary?: string) => {
+      const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?${params.toString()}`;
+      const r = await fetch(url, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        cache: "no-store",
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        throw new Error(data?.error?.message || `Calendar list failed (${calendarId})`);
+      }
+      const items = (data?.items || []) as Array<Record<string, unknown>>;
+      return items.map((item) => ({
+        ...item,
+        calendarId,
+        calendarSummary: calendarSummary || null,
+      }));
+    };
 
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok) {
-      return NextResponse.json({ error: data?.error?.message || "Calendar list failed" }, { status: r.status });
+    if (!includeAllCalendars) {
+      const items = await fetchEvents("primary", "Agenda principal");
+      return NextResponse.json({ items });
     }
 
-    return NextResponse.json({ items: data?.items ?? [] });
+    try {
+      const calendarListRes = await fetch(
+        "https://www.googleapis.com/calendar/v3/users/me/calendarList?fields=items(id,summary,summaryOverride,selected),nextPageToken",
+        {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        cache: "no-store",
+        }
+      );
+      const calendarListData = await calendarListRes.json().catch(() => ({}));
+      if (!calendarListRes.ok) {
+        throw new Error(calendarListData?.error?.message || "Calendar list (all) failed");
+      }
+
+      const calendars = ((calendarListData?.items || []) as Array<Record<string, unknown>>)
+        .filter((cal) => cal?.id && cal?.selected !== false)
+        .map((cal) => ({
+          id: String(cal.id),
+          summary: String(cal.summaryOverride || cal.summary || "Calendário"),
+        }));
+
+      const chunks: Array<Promise<Array<Record<string, unknown>>>> = [];
+      for (const cal of calendars) {
+        chunks.push(fetchEvents(cal.id, cal.summary));
+      }
+      const results = await Promise.all(chunks);
+      const merged = results.flat();
+
+      return NextResponse.json({ items: merged });
+    } catch {
+      // fallback seguro para não quebrar UX se o token não tiver permissão de calendarList
+      const items = await fetchEvents("primary", "Agenda principal");
+      return NextResponse.json({ items });
+    }
   } catch (e: unknown) {
     return NextResponse.json(
       { error: e instanceof Error ? e.message : "Unknown error" },
@@ -46,4 +95,3 @@ export async function POST(req: Request) {
     );
   }
 }
-

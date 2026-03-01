@@ -60,17 +60,19 @@ export default function FinanceRecurringPage() {
   }, []);
 
   useEffect(() => {
-    const id = setTimeout(() => {
-      void load();
-    }, 0);
-    return () => clearTimeout(id);
+    let cancelled = false;
+    Promise.resolve().then(() => {
+      if (!cancelled) {
+        void load();
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [load]);
 
   useEffect(() => {
-    const id = setTimeout(() => {
-      void runDue(true);
-    }, 200);
-    return () => clearTimeout(id);
+    void runDue(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

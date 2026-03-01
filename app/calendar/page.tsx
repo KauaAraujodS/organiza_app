@@ -11,6 +11,8 @@ type GoogleEvent = {
   description?: string;
   htmlLink?: string;
   colorId?: string;
+  calendarId?: string;
+  calendarSummary?: string;
   start?: { date?: string; dateTime?: string };
   end?: { date?: string; dateTime?: string };
 };
@@ -24,6 +26,8 @@ type CalendarEvent = {
   color?: string;
   googleUrl?: string;
   description?: string;
+  calendarId?: string;
+  calendarSummary?: string;
 };
 
 const COLOR_OPTIONS = [
@@ -82,6 +86,8 @@ function parseGoogleEvents(items: GoogleEvent[]): CalendarEvent[] {
         allDay: false,
         color: colorFromId(it.colorId),
         googleUrl: it.htmlLink,
+        calendarId: it.calendarId || "primary",
+        calendarSummary: it.calendarSummary || "Agenda principal",
       });
     } else if (startDate) {
       // All-day (Google geralmente usa end exclusivo; aqui já normalizamos para "dia seguinte 00:00")
@@ -99,6 +105,8 @@ function parseGoogleEvents(items: GoogleEvent[]): CalendarEvent[] {
         allDay: true,
         color: colorFromId(it.colorId),
         googleUrl: it.htmlLink,
+        calendarId: it.calendarId || "primary",
+        calendarSummary: it.calendarSummary || "Agenda principal",
       });
     }
   }
@@ -253,6 +261,8 @@ export default function CalendarPage() {
           timeMin: monthStart.toISOString(),
           timeMax: monthEndExclusive.toISOString(),
           timezone,
+          includeAllCalendars: true,
+          maxResults: 500,
         }),
       });
 
@@ -354,7 +364,7 @@ export default function CalendarPage() {
     }
   }
 
-  async function deleteEvent(eventId: string) {
+  async function deleteEvent(eventId: string, calendarId?: string) {
     setDeletingId(eventId);
     setMsg("");
     try {
@@ -362,7 +372,7 @@ export default function CalendarPage() {
       const r = await fetch("/api/calendar/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accessToken, eventId }),
+        body: JSON.stringify({ accessToken, eventId, calendarId: calendarId || "primary" }),
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(data?.error || "Falha ao remover evento.");
@@ -470,7 +480,7 @@ export default function CalendarPage() {
 
                   <button
                     type="button"
-                    onClick={() => deleteEvent(ev.id)}
+                    onClick={() => deleteEvent(ev.id, ev.calendarId)}
                     disabled={deletingId === ev.id}
                     className={styles.deleteBtn}
                     aria-label="Excluir evento"

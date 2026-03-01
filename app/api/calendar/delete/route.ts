@@ -2,15 +2,15 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const { accessToken, eventId } = await req.json();
+    const { accessToken, eventId, calendarId } = await req.json();
 
     if (!accessToken) return NextResponse.json({ error: "Missing accessToken" }, { status: 401 });
     if (!eventId) return NextResponse.json({ error: "Missing eventId" }, { status: 400 });
 
-    const calendarId = "primary";
+    const resolvedCalendarId = String(calendarId || "primary");
 
     const r = await fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events/${eventId}`,
+      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(resolvedCalendarId)}/events/${eventId}`,
       {
         method: "DELETE",
         headers: { Authorization: `Bearer ${accessToken}` },

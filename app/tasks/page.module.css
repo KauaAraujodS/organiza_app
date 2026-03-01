@@ -253,6 +253,25 @@
   background: rgba(124, 58, 237, 0.08);
 }
 
+:global([data-theme="light"]) .title {
+  color: #0f172a;
+}
+
+:global([data-theme="light"]) .subtitle {
+  color: #475569;
+}
+
+:global([data-theme="light"]) .primaryBtn {
+  color: #ffffff;
+  border-color: rgba(109, 40, 217, 0.35);
+  background: linear-gradient(90deg, #6d28d9 0%, #9333ea 100%);
+  box-shadow: 0 10px 22px rgba(109, 40, 217, 0.22);
+}
+
+:global([data-theme="light"]) .primaryBtn:hover {
+  filter: brightness(1.04);
+}
+
 :global([data-theme="light"]) .panel,
 :global([data-theme="light"]) .taskCard,
 :global([data-theme="light"]) .loadingCard,
@@ -260,6 +279,78 @@
   background: #ffffff;
   border-color: rgba(15, 23, 42, 0.12);
   box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+}
+
+:global([data-theme="light"]) .tabBtn {
+  color: #1f2937;
+  background: #f3f6fb;
+  border-color: rgba(15, 23, 42, 0.14);
+}
+
+:global([data-theme="light"]) .tabBtnActive {
+  color: #ffffff;
+  border-color: rgba(109, 40, 217, 0.42);
+  background: linear-gradient(90deg, #6d28d9 0%, #9333ea 100%);
+}
+
+:global([data-theme="light"]) .taskTitle {
+  color: #0f172a;
+}
+
+:global([data-theme="light"]) .taskDescription {
+  color: #475569;
+}
+
+:global([data-theme="light"]) .taskTitleDone {
+  color: #64748b;
+}
+
+:global([data-theme="light"]) .doneBtn,
+:global([data-theme="light"]) .iconBtn {
+  color: #334155;
+  border-color: rgba(15, 23, 42, 0.14);
+  background: #f8fafc;
+}
+
+:global([data-theme="light"]) .doneBtnDone {
+  color: #047857;
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+:global([data-theme="light"]) .pill {
+  color: #334155;
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.14);
+}
+
+:global([data-theme="light"]) .pillHigh {
+  color: #991b1b;
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+:global([data-theme="light"]) .pillMedium {
+  color: #92400e;
+  background: rgba(245, 158, 11, 0.16);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+:global([data-theme="light"]) .pillLow,
+:global([data-theme="light"]) .pillGoogle {
+  color: #065f46;
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(16, 185, 129, 0.36);
+}
+
+:global([data-theme="light"]) .emptyIcon {
+  color: #64748b;
+  border-color: rgba(15, 23, 42, 0.14);
+  background: #f8fafc;
+}
+
+:global([data-theme="light"]) .error {
+  color: #b91c1c;
 }
 
 :global([data-theme="dark"]) .panel,

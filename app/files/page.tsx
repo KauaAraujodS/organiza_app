@@ -346,18 +346,8 @@ export default function FilesPage() {
 
       // garantir meta no supabase apenas para itens novos (sem sobrescrever customizacoes)
       if (uid && list.length) {
-        const ids = list.map((i) => i.id);
-        const { data: existingRows } = await supabase
-          .from("drive_items")
-          .select("drive_id")
-          .eq("user_id", uid)
-          .in("drive_id", ids);
-
-        const existing = new Set((existingRows || []).map((r: any) => r.drive_id as string));
         const parentColor = metaMap[folderIdX]?.color || "#7C3AED";
-        const missing = list
-          .filter((it) => !existing.has(it.id))
-          .map((it) => ({
+        const baseRows = list.map((it) => ({
             user_id: uid,
             drive_id: it.id,
             kind: isFolder(it) ? "folder" : "file",
@@ -371,9 +361,10 @@ export default function FilesPage() {
             icon_emoji: isFolder(it) ? "📁" : "📄",
           }));
 
-        if (missing.length) {
-          await supabase.from("drive_items").insert(missing as any[]);
-        }
+        await supabase.from("drive_items").upsert(baseRows, {
+          onConflict: "user_id,drive_id",
+          ignoreDuplicates: true,
+        });
       }
 
       await loadMeta(list.map((i) => i.id), uid);

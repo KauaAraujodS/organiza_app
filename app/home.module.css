@@ -153,6 +153,32 @@
   font-size: 1.08rem;
 }
 
+.panelList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.panelItem {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+  border-bottom: 1px solid color-mix(in oklab, var(--line-soft) 90%, transparent);
+  padding-bottom: 0.45rem;
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+.panelItemMeta {
+  color: var(--text-soft);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
 :global([data-theme="dark"]) .cardLink {
   background: rgba(18, 28, 46, 0.9);
   border-color: rgba(122, 146, 184, 0.22);
@@ -238,5 +264,10 @@
 
   .panelText {
     margin-top: 2.3rem;
+  }
+
+  .panelItem {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
