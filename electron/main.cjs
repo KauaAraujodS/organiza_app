@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
-const { app, BrowserWindow, ipcMain, shell } = require("electron");
+const { app, BrowserWindow, dialog, ipcMain, shell } = require("electron");
+const { autoUpdater } = require("electron-updater");
 const fs = require("node:fs/promises");
 const os = require("node:os");
 const path = require("node:path");
@@ -7,6 +8,7 @@ const path = require("node:path");
 const DEFAULT_APP_URL = "https://organiza-app-peach.vercel.app";
 const APP_URL = process.env.ORGANIZA_APP_URL || DEFAULT_APP_URL;
 const TEMP_OPEN_DIR = path.join(os.tmpdir(), "OrganizaApp", "open");
+const UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
 
 const GOOGLE_EXPORT_MIME_BY_TYPE = {
   "application/vnd.google-apps.document": {
@@ -101,6 +103,67 @@ function createMainWindow() {
     }
     return { action: "allow" };
   });
+
+  return win;
+}
+
+function setupAutoUpdater(win) {
+  if (!app.isPackaged) return;
+
+  autoUpdater.autoDownload = false;
+  autoUpdater.autoInstallOnAppQuit = true;
+
+  autoUpdater.on("update-available", async (info) => {
+    const version = info?.version ? `v${info.version}` : "nova versão";
+    const ask = await dialog.showMessageBox(win, {
+      type: "info",
+      title: "Atualização disponível",
+      message: `Existe uma atualização (${version}).`,
+      detail: "Deseja baixar agora e instalar ao reiniciar o app?",
+      buttons: ["Atualizar agora", "Depois"],
+      defaultId: 0,
+      cancelId: 1,
+    });
+
+    if (ask.response === 0) {
+      await autoUpdater.downloadUpdate();
+    }
+  });
+
+  autoUpdater.on("update-downloaded", async () => {
+    const ask = await dialog.showMessageBox(win, {
+      type: "info",
+      title: "Atualização pronta",
+      message: "A atualização foi baixada.",
+      detail: "Clique em Reiniciar agora para aplicar a nova versão.",
+      buttons: ["Reiniciar agora", "Depois"],
+      defaultId: 0,
+      cancelId: 1,
+    });
+
+    if (ask.response === 0) {
+      autoUpdater.quitAndInstall();
+    }
+  });
+
+  autoUpdater.on("error", async (err) => {
+    const detail = err instanceof Error ? err.message : String(err || "");
+    await dialog.showMessageBox(win, {
+      type: "warning",
+      title: "Falha ao atualizar",
+      message: "Não foi possível verificar/baixar atualização agora.",
+      detail,
+      buttons: ["OK"],
+    });
+  });
+
+  setTimeout(() => {
+    autoUpdater.checkForUpdates().catch(() => undefined);
+  }, 15_000);
+
+  setInterval(() => {
+    autoUpdater.checkForUpdates().catch(() => undefined);
+  }, UPDATE_CHECK_INTERVAL_MS);
 }
 
 ipcMain.handle("drive:open-file", async (_event, payload) => {
@@ -136,6 +199,17 @@ ipcMain.handle("drive:open-file", async (_event, payload) => {
   }
 });
 
+ipcMain.handle("app:check-updates", async () => {
+  if (!app.isPackaged) return { ok: false, error: "Atualização indisponível em modo desenvolvimento." };
+  try {
+    await autoUpdater.checkForUpdates();
+    return { ok: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Falha ao verificar atualizações.";
+    return { ok: false, error: message };
+  }
+});
+
 const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
   app.quit();
@@ -148,7 +222,8 @@ if (!gotTheLock) {
   });
 
   app.whenReady().then(() => {
-    createMainWindow();
+    const mainWindow = createMainWindow();
+    setupAutoUpdater(mainWindow);
 
     app.on("activate", () => {
       if (BrowserWindow.getAllWindows().length === 0) createMainWindow();

@@ -12,10 +12,12 @@
     "desktop:local": "concurrently -k \"npm run dev\" \"wait-on http://localhost:3000 && set ORGANIZA_APP_URL=http://localhost:3000&& electron .\"",
     "icons:generate": "node scripts/generate-icons.mjs",
     "predist:win": "npm run icons:generate",
-    "dist:win": "electron-builder --win nsis"
+    "dist:win": "electron-builder --win nsis",
+    "dist:win:publish": "electron-builder --win nsis --publish always"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.95.3",
+    "electron-updater": "^6.6.2",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3"
@@ -59,6 +61,13 @@
       "shortcutName": "OrganizaApp",
       "installerIcon": "icon.ico",
       "uninstallerIcon": "icon.ico"
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "KauaAraujodS",
+        "repo": "organiza_app"
+      }
+    ]
   }
 }
