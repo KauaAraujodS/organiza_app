@@ -11,6 +11,7 @@ type GoogleEvent = {
   description?: string;
   htmlLink?: string;
   colorId?: string;
+  recurringEventId?: string;
   calendarId?: string;
   calendarSummary?: string;
   start?: { date?: string; dateTime?: string };
@@ -25,6 +26,7 @@ type CalendarEvent = {
   allDay: boolean;
   color?: string;
   colorId?: string;
+  recurringEventId?: string;
   googleUrl?: string;
   description?: string;
   calendarId?: string;
@@ -91,6 +93,7 @@ function parseGoogleEvents(items: GoogleEvent[]): CalendarEvent[] {
         allDay: false,
         color: colorFromId(it.colorId),
         colorId: it.colorId,
+        recurringEventId: it.recurringEventId,
         googleUrl: it.htmlLink,
         calendarId: it.calendarId || "primary",
         calendarSummary: it.calendarSummary || "Agenda principal",
@@ -111,6 +114,7 @@ function parseGoogleEvents(items: GoogleEvent[]): CalendarEvent[] {
         allDay: true,
         color: colorFromId(it.colorId),
         colorId: it.colorId,
+        recurringEventId: it.recurringEventId,
         googleUrl: it.htmlLink,
         calendarId: it.calendarId || "primary",
         calendarSummary: it.calendarSummary || "Agenda principal",
@@ -122,6 +126,8 @@ function parseGoogleEvents(items: GoogleEvent[]): CalendarEvent[] {
 
 const WEEK_DAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"] as const;
 const EMPTY_EVENTS: CalendarEvent[] = [];
+const EVENTS_CACHE_TTL_MS = 90_000;
+const monthEventsCache = new Map<string, { ts: number; events: CalendarEvent[] }>();
 
 type DayCellProps = {
   date: Date;
@@ -184,6 +190,7 @@ export default function CalendarPage() {
   const [colorId, setColorId] = useState("9");
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<CalendarEvent | null>(null);
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [editingCalendarId, setEditingCalendarId] = useState<string | null>(null);
@@ -258,11 +265,19 @@ export default function CalendarPage() {
   }
 
   const loadEvents = useCallback(async () => {
-    setLoading(true);
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    const cacheKey = `${monthStart.toISOString()}__${monthEndExclusive.toISOString()}__${timezone}`;
+    const cached = monthEventsCache.get(cacheKey);
+    const hasFreshCache = Boolean(cached && Date.now() - cached.ts < EVENTS_CACHE_TTL_MS);
+
+    if (hasFreshCache && cached) {
+      setEvents(cached.events);
+    } else {
+      setLoading(true);
+    }
     setMsg("");
     try {
       const accessToken = await getValidAccessToken();
-      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 
       const r = await fetch("/api/calendar/list", {
         method: "POST",
@@ -279,10 +294,12 @@ export default function CalendarPage() {
 
       const data = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(data?.error || "Falha ao carregar calendário.");
-      setEvents(parseGoogleEvents((data?.items || []) as GoogleEvent[]));
+      const parsed = parseGoogleEvents((data?.items || []) as GoogleEvent[]);
+      monthEventsCache.set(cacheKey, { ts: Date.now(), events: parsed });
+      setEvents(parsed);
     } catch (e: unknown) {
       setMsg(e instanceof Error ? e.message : "Falha ao carregar calendário.");
-      setEvents([]);
+      if (!hasFreshCache) setEvents([]);
     } finally {
       setLoading(false);
     }
@@ -441,6 +458,23 @@ export default function CalendarPage() {
     }
   }
 
+  async function deleteSingleOccurrence(ev: CalendarEvent) {
+    await deleteEvent(ev.id, ev.calendarId);
+  }
+
+  async function deleteWholeSeries(ev: CalendarEvent) {
+    const seriesId = ev.recurringEventId || ev.id;
+    await deleteEvent(seriesId, ev.calendarId);
+  }
+
+  async function onDeleteClick(ev: CalendarEvent) {
+    if (!ev.recurringEventId) {
+      await deleteSingleOccurrence(ev);
+      return;
+    }
+    setDeleteTarget(ev);
+  }
+
   return (
     <main className={styles.main}>
       <div className={styles.header}>
@@ -554,7 +588,9 @@ export default function CalendarPage() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => deleteEvent(ev.id, ev.calendarId)}
+                      onClick={() => {
+                        void onDeleteClick(ev);
+                      }}
                       disabled={deletingId === ev.id}
                       className={styles.deleteBtn}
                       aria-label="Excluir evento"
@@ -716,6 +752,61 @@ export default function CalendarPage() {
             </div>
           </div>
         </form>
+      </ModalShell>
+
+      <ModalShell
+        open={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        title="Excluir evento recorrente"
+        subtitle="Escolha se deseja excluir apenas este dia ou toda a série."
+        maxWidthClass="max-w-lg"
+        maxWidthPx={560}
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setDeleteTarget(null)}
+              className={styles.modalCancel}
+            >
+              Cancelar
+            </button>
+          </>
+        }
+      >
+        {deleteTarget ? (
+          <div className={styles.deleteChoiceWrap}>
+            <div className={styles.deleteChoiceTitle}>{deleteTarget.title}</div>
+            <div className={styles.deleteChoiceText}>
+              Ação para {selectedDate.toLocaleDateString("pt-BR")}
+            </div>
+
+            <div className={styles.deleteChoiceActions}>
+              <button
+                type="button"
+                className={styles.deleteSingleBtn}
+                disabled={deletingId !== null}
+                onClick={() => {
+                  void deleteSingleOccurrence(deleteTarget);
+                  setDeleteTarget(null);
+                }}
+              >
+                Excluir somente este dia
+              </button>
+
+              <button
+                type="button"
+                className={styles.deleteSeriesBtn}
+                disabled={deletingId !== null}
+                onClick={() => {
+                  void deleteWholeSeries(deleteTarget);
+                  setDeleteTarget(null);
+                }}
+              >
+                Excluir toda a série
+              </button>
+            </div>
+          </div>
+        ) : null}
       </ModalShell>
     </main>
   );

@@ -13,6 +13,25 @@ type GoogleDashboardEvent = {
   start?: { date?: string; dateTime?: string };
 };
 
+type DashboardCacheShape = {
+  ts: number;
+  filesCount: number;
+  pendingTasksCount: number;
+  passwordsCount: number;
+  eventsCount: number;
+  financeBalanceCents: number;
+  recentTasks: Array<{ id: string; title: string; due_date: string | null }>;
+  upcomingEvents: Array<{
+    id: string;
+    title: string;
+    startDateTime: string | null;
+    allDayDate: string | null;
+  }>;
+};
+
+const DASHBOARD_CACHE_KEY = "organiza_dashboard_cache_v1";
+const DASHBOARD_CACHE_TTL_MS = 90_000;
+
 function Card({
   href,
   title,
@@ -77,6 +96,26 @@ export default function Dashboard() {
     }>
   >([]);
 
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(DASHBOARD_CACHE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as DashboardCacheShape;
+      if (!parsed?.ts || Date.now() - parsed.ts > DASHBOARD_CACHE_TTL_MS) return;
+
+      setFilesCount(parsed.filesCount || 0);
+      setPendingTasksCount(parsed.pendingTasksCount || 0);
+      setPasswordsCount(parsed.passwordsCount || 0);
+      setEventsCount(parsed.eventsCount || 0);
+      setFinanceBalanceCents(parsed.financeBalanceCents || 0);
+      setRecentTasks(parsed.recentTasks || []);
+      setUpcomingEvents(parsed.upcomingEvents || []);
+      setLoading(false);
+    } catch {
+      // cache invalido: ignora
+    }
+  }, []);
+
   const formatMoney = useMemo(
     () =>
       new Intl.NumberFormat("pt-BR", {
@@ -91,9 +130,9 @@ export default function Dashboard() {
     setMsg("");
 
     try {
-      const { data: userData, error: userError } = await supabase.auth.getUser();
+      const { data: userData, error: userError } = await supabase.auth.getSession();
       if (userError) throw userError;
-      if (!userData.user) {
+      if (!userData.session?.user) {
         setLoading(false);
         return;
       }
@@ -203,6 +242,22 @@ export default function Dashboard() {
       const mappedEvents = await calendarPromise;
       setEventsCount(mappedEvents.length);
       setUpcomingEvents(mappedEvents.slice(0, 5));
+
+      const cachePayload: DashboardCacheShape = {
+        ts: Date.now(),
+        filesCount: filesCountRes.count || 0,
+        pendingTasksCount: pendingTasksCountRes.count || 0,
+        passwordsCount: passwordsCountRes.count || 0,
+        eventsCount: mappedEvents.length,
+        financeBalanceCents: opening + flow,
+        recentTasks: (recentTasksRes.data || []) as Array<{
+          id: string;
+          title: string;
+          due_date: string | null;
+        }>,
+        upcomingEvents: mappedEvents.slice(0, 5),
+      };
+      sessionStorage.setItem(DASHBOARD_CACHE_KEY, JSON.stringify(cachePayload));
     } catch (e: unknown) {
       setMsg(e instanceof Error ? e.message : "Falha ao carregar dashboard.");
     } finally {

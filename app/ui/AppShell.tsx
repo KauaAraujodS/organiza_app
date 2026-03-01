@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Sidebar from "./Sidebar";
 import MobileHeader from "./MobileHeader";
 import styles from "./shell.module.css";
@@ -10,6 +10,7 @@ type ThemeMode = "dark" | "light";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const isLogin = pathname === "/login";
   const [theme, setTheme] = useState<ThemeMode>(() => {
     if (typeof window === "undefined") return "dark";
@@ -23,6 +24,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     document.documentElement.setAttribute("data-theme", theme);
     if (typeof window !== "undefined") window.localStorage.setItem("organiza_theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    const routes = ["/", "/files", "/tasks", "/passwords", "/calendar", "/financas", "/ai", "/configuracao"];
+    for (const route of routes) router.prefetch(route);
+  }, [router]);
 
   function toggleTheme() {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));

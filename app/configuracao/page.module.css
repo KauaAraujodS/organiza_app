@@ -1,0 +1,373 @@
+.page {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  display: grid;
+  gap: 1.05rem;
+}
+
+.header {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.title {
+  margin: 0;
+  color: var(--text-main);
+  font-size: clamp(2rem, 3vw, 2.65rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 1rem;
+}
+
+.headerPill {
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--brand) 36%, var(--line-soft) 64%);
+  background: color-mix(in oklab, var(--brand) 24%, var(--surface-2) 76%);
+  padding: 0.24rem 0.62rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-main);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.95rem;
+}
+
+.profileRow {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.avatarPreview {
+  width: 4.35rem;
+  height: 4.35rem;
+  border-radius: 999px;
+  border: 1px solid var(--line-soft);
+  background:
+    radial-gradient(95px 65px at 12% 0%, rgba(124, 58, 237, 0.26), transparent 72%),
+    color-mix(in oklab, var(--surface-1) 90%, transparent);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  box-shadow:
+    0 0 0 3px color-mix(in oklab, var(--brand) 16%, transparent),
+    0 14px 26px rgba(0, 0, 0, 0.22);
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarFallback {
+  color: var(--text-main);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.profileFields {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.profileHint {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.card,
+.actionsCard {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.05rem;
+  border: 1px solid var(--line-soft);
+  background:
+    radial-gradient(520px 140px at 0% -34%, color-mix(in oklab, var(--brand) 18%, transparent), transparent 74%),
+    color-mix(in oklab, var(--surface-2) 93%, transparent);
+  padding: 1.02rem;
+  box-shadow:
+    0 18px 34px rgba(2, 6, 23, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+.card::before,
+.actionsCard::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(167, 139, 250, 0.35), transparent 55%);
+  pointer-events: none;
+}
+
+.profileCard {
+  grid-column: span 2;
+}
+
+.accountCard,
+.globalCard {
+  min-height: 216px;
+}
+
+.integrationCard {
+  grid-column: span 1;
+}
+
+.securityCard,
+.toolsCard {
+  padding: 1.08rem 1.04rem;
+}
+
+.cardTitle {
+  margin: 0 0 0.75rem;
+  color: var(--text-main);
+  font-size: 1.14rem;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+}
+
+.muted {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+.help {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.93rem;
+  line-height: 1.45;
+}
+
+.kvList {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.kvRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.16rem;
+  padding: 0.32rem 0;
+  border-bottom: 1px dashed color-mix(in oklab, var(--line-soft) 86%, transparent);
+}
+
+.kvRow:last-child {
+  border-bottom: 0;
+}
+
+.kvLabel {
+  color: var(--text-soft);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.045em;
+}
+
+.kvValue {
+  color: var(--text-main);
+  font-size: 0.96rem;
+  word-break: break-word;
+}
+
+.integrationList {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.integrationItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 0.75rem;
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--surface-1) 95%, transparent), color-mix(in oklab, var(--surface-1) 88%, transparent));
+  padding: 0.62rem 0.75rem;
+  color: var(--text-main);
+  font-size: 0.9rem;
+}
+
+.ok {
+  color: #4ade80;
+  font-weight: 600;
+}
+
+.warn {
+  color: #fda4af;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.58rem;
+}
+
+.passwordGrid {
+  margin-top: 0.8rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.inputWrap {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.input {
+  width: 100%;
+  border-radius: 0.7rem;
+  border: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-1) 93%, transparent);
+  color: var(--text-main);
+  padding: 0.55rem 0.72rem;
+  outline: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.input:focus {
+  border-color: color-mix(in oklab, var(--brand) 45%, var(--line-soft) 55%);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand) 20%, transparent);
+}
+
+.primaryBtn,
+.secondaryBtn,
+.dangerBtn {
+  border-radius: 0.75rem;
+  padding: 0.57rem 0.94rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.16s ease, filter 0.16s ease, background-color 0.16s ease;
+}
+
+.primaryBtn {
+  border: 0;
+  color: #ffffff;
+  background: linear-gradient(90deg, #6d28d9 0%, #9333ea 100%);
+  box-shadow: 0 12px 24px rgba(109, 40, 217, 0.3);
+}
+
+.primaryBtn:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+.secondaryBtn {
+  border: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-3) 82%, transparent);
+  color: var(--text-main);
+}
+
+.secondaryBtn:hover {
+  background: color-mix(in oklab, var(--surface-3) 98%, transparent);
+  transform: translateY(-1px);
+}
+
+.dangerBtn {
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  background: rgba(220, 38, 38, 0.24);
+  color: #fecaca;
+}
+
+.dangerBtn:hover {
+  background: rgba(220, 38, 38, 0.34);
+  transform: translateY(-1px);
+}
+
+.feedback {
+  margin: 0;
+  color: #c4b5fd;
+  font-size: 0.92rem;
+}
+
+.primaryBtn:disabled,
+.secondaryBtn:disabled,
+.dangerBtn:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+:global([data-theme="light"]) .card,
+:global([data-theme="light"]) .actionsCard {
+  background:
+    radial-gradient(560px 140px at 0% -34%, rgba(109, 40, 217, 0.12), transparent 74%),
+    #ffffff;
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.09);
+}
+
+:global([data-theme="light"]) .integrationItem {
+  background: #f8fbff;
+  border-color: rgba(15, 23, 42, 0.11);
+}
+
+:global([data-theme="light"]) .input {
+  background: #f8fbff;
+}
+
+:global([data-theme="light"]) .avatarPreview {
+  background:
+    radial-gradient(95px 65px at 12% 0%, rgba(109, 40, 217, 0.14), transparent 72%),
+    #f8fbff;
+  border-color: rgba(15, 23, 42, 0.11);
+  box-shadow:
+    0 0 0 3px rgba(109, 40, 217, 0.1),
+    0 14px 26px rgba(15, 23, 42, 0.12);
+}
+
+:global([data-theme="light"]) .warn {
+  color: #b91c1c;
+}
+
+@media (max-width: 980px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .profileCard {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profileRow {
+    grid-template-columns: 1fr;
+  }
+
+  .passwordGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .title {
+    font-size: 1.86rem;
+  }
+}

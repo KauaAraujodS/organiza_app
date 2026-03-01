@@ -183,9 +183,9 @@ export default function PasswordsPage() {
     setLoading(true);
     setMsg("");
     try {
-      const { data: userData, error: userErr } = await supabase.auth.getUser();
+      const { data: userData, error: userErr } = await supabase.auth.getSession();
       if (userErr) throw userErr;
-      const uid = userData.user?.id;
+      const uid = userData.session?.user?.id;
       if (!uid) {
         router.replace("/login");
         return;

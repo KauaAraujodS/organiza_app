@@ -422,6 +422,62 @@
   cursor: default;
 }
 
+.deleteChoiceWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.deleteChoiceTitle {
+  color: var(--text-main);
+  font-size: 1.06rem;
+  font-weight: 650;
+}
+
+.deleteChoiceText {
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+.deleteChoiceActions {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.deleteSingleBtn,
+.deleteSeriesBtn {
+  border-radius: 0.75rem;
+  padding: 0.55rem 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.deleteSingleBtn {
+  border: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-2) 92%, transparent);
+  color: var(--text-main);
+}
+
+.deleteSingleBtn:hover {
+  background: color-mix(in oklab, var(--surface-3) 82%, transparent);
+}
+
+.deleteSeriesBtn {
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  background: rgba(220, 38, 38, 0.2);
+  color: #fecaca;
+}
+
+.deleteSeriesBtn:hover {
+  background: rgba(220, 38, 38, 0.28);
+}
+
+.deleteSingleBtn:disabled,
+.deleteSeriesBtn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 .form {
   display: flex;
   flex-direction: column;

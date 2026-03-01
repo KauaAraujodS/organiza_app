@@ -1,0 +1,208 @@
+.main {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 1.25rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  border: 1px solid var(--line-soft);
+  background:
+    radial-gradient(860px 280px at -5% -80%, rgba(109, 40, 217, 0.34), transparent 65%),
+    radial-gradient(780px 240px at 110% -90%, rgba(59, 130, 246, 0.2), transparent 64%),
+    color-mix(in oklab, var(--surface-2) 94%, transparent);
+  padding: 1.35rem;
+  box-shadow: var(--shadow-1);
+}
+
+.badge {
+  width: fit-content;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--brand) 36%, var(--line-soft) 64%);
+  background: color-mix(in oklab, var(--brand) 26%, var(--surface-2) 74%);
+  color: var(--text-main);
+  padding: 0.3rem 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.title {
+  margin: 0.75rem 0 0;
+  font-size: clamp(1.8rem, 3.2vw, 2.35rem);
+  line-height: 1.1;
+  color: var(--text-main);
+}
+
+.subtitle {
+  margin: 0.55rem 0 0;
+  max-width: 72ch;
+  color: var(--text-soft);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.actionsRow {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.primaryBtn {
+  border: 0;
+  border-radius: 0.8rem;
+  padding: 0.62rem 1rem;
+  color: #ffffff;
+  font-weight: 600;
+  background: linear-gradient(90deg, #6d28d9 0%, #9333ea 100%);
+  box-shadow: 0 10px 24px rgba(109, 40, 217, 0.3);
+  opacity: 0.95;
+}
+
+.helper {
+  color: var(--text-soft);
+  font-size: 0.86rem;
+}
+
+.infoGrid {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.infoCard {
+  border-radius: 0.9rem;
+  border: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-1) 90%, transparent);
+  padding: 0.85rem;
+}
+
+.infoTitle {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 0.95rem;
+}
+
+.infoText {
+  margin: 0.45rem 0 0;
+  color: var(--text-soft);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid var(--line-soft);
+  background: color-mix(in oklab, var(--surface-2) 92%, transparent);
+  padding: 1rem;
+  min-height: 132px;
+}
+
+.cardGlow {
+  position: absolute;
+  inset: -32% auto auto -18%;
+  width: 220px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.3) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.cardTitle {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 1.02rem;
+  line-height: 1.25;
+}
+
+.cardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.statusPill {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--brand) 34%, var(--line-soft) 66%);
+  background: color-mix(in oklab, var(--brand) 22%, var(--surface-2) 78%);
+  color: var(--text-main);
+  padding: 0.18rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.cardText {
+  margin: 0.6rem 0 0;
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+:global([data-theme="light"]) .hero,
+:global([data-theme="light"]) .card {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+}
+
+:global([data-theme="light"]) .badge {
+  color: #4c1d95;
+  background: rgba(124, 58, 237, 0.12);
+  border-color: rgba(124, 58, 237, 0.36);
+}
+
+:global([data-theme="light"]) .helper,
+:global([data-theme="light"]) .infoText,
+:global([data-theme="light"]) .cardText,
+:global([data-theme="light"]) .subtitle {
+  color: #51627d;
+}
+
+:global([data-theme="light"]) .infoCard {
+  background: #f8fbff;
+  border-color: rgba(15, 23, 42, 0.12);
+}
+
+:global([data-theme="light"]) .statusPill {
+  color: #4c1d95;
+  background: rgba(124, 58, 237, 0.12);
+  border-color: rgba(124, 58, 237, 0.3);
+}
+
+@media (max-width: 980px) {
+  .infoGrid,
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .main {
+    padding: 1rem;
+  }
+
+  .hero {
+    padding: 1rem;
+  }
+
+  .infoGrid,
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

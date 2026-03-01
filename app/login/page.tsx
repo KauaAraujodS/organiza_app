@@ -185,6 +185,11 @@ export default function LoginPage() {
             Entrar com Google
           </button>
 
+          <p className={styles.hint}>
+            Depois do primeiro login com Google, você pode definir uma senha em Configuração
+            e entrar só com email + senha.
+          </p>
+
           {msg && (
             <p className={styles.error}>
               {msg}

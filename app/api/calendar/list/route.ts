@@ -28,7 +28,7 @@ export async function POST(req: Request) {
       timeMin,
       timeMax,
       fields:
-        "items(id,summary,description,htmlLink,colorId,start,end,status),nextPageToken",
+        "items(id,summary,description,htmlLink,colorId,start,end,status,recurringEventId),nextPageToken",
     });
     if (timezone) params.set("timeZone", timezone);
 
@@ -76,13 +76,12 @@ export async function POST(req: Request) {
         }))
         .slice(0, 10);
 
-      const results: Array<Array<Record<string, unknown>>> = [];
-      for (let i = 0; i < calendars.length; i += 4) {
-        const batch = calendars.slice(i, i + 4);
-        const partial = await Promise.all(batch.map((cal) => fetchEvents(cal.id, cal.summary)));
-        results.push(...partial);
-      }
-      const merged = results.flat();
+      const settled = await Promise.allSettled(
+        calendars.map((cal) => fetchEvents(cal.id, cal.summary))
+      );
+      const merged = settled
+        .filter((r): r is PromiseFulfilledResult<Array<Record<string, unknown>>> => r.status === "fulfilled")
+        .flatMap((r) => r.value);
 
       return NextResponse.json({ items: merged });
     } catch {

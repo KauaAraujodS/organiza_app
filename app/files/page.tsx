@@ -1,6 +1,6 @@
 "use client";
 
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import EditDriveItemModal, { DriveEditValues } from "../api/ui/EditDriveItemModal";
 import { getValidAccessToken } from "../lib/googleToken";
@@ -46,6 +46,12 @@ type DriveCardView = {
 
 const APP_FOLDER_NAME = "OrganizaApp";
 const LS_TOKEN_KEY = "organiza_google_token";
+const ROOT_CACHE_KEY = "organiza_drive_root_id";
+const DRIVE_FOLDER_CACHE_TTL_MS = 45_000;
+const driveFolderCache = new Map<
+  string,
+  { ts: number; items: DriveItem[]; metaMap: Record<string, MetaRow> }
+>();
 
 async function hashSecret(secret: string) {
   const buffer = await crypto.subtle.digest(
@@ -107,6 +113,7 @@ async function driveRequest<T>(
 
 export default function FilesPage() {
   const router = useRouter();
+  const ensuredMetaIdsRef = useRef<Set<string>>(new Set());
 
   const [userId, setUserId] = useState<string>("");
   const [accessToken, setAccessToken] = useState<string>("");
@@ -193,9 +200,9 @@ export default function FilesPage() {
     (async () => {
       try {
         // 1) user do supabase
-        const { data, error } = await supabase.auth.getUser();
+        const { data, error } = await supabase.auth.getSession();
         if (error) throw error;
-        const uid = data?.user?.id || "";
+        const uid = data?.session?.user?.id || "";
         if (!uid) {
           router.push("/login");
           return;
@@ -240,16 +247,32 @@ export default function FilesPage() {
         setFolderId(root.id);
         setFolderStack([{ id: root.id, name: "Raiz" }]);
         await loadList(root.id, accessToken, userId);
-      } catch (e: any) {
-        setUiMsg(e?.message || "Erro ao inicializar Drive");
+      } catch (e: unknown) {
+        setUiMsg(e instanceof Error ? e.message : "Erro ao inicializar Drive");
       } finally {
         setLoading(false);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, accessToken]);
 
   // ---------- Drive helpers ----------
   async function ensureAppRootFolder(accessTokenX: string) {
+    const cachedRootId = localStorage.getItem(ROOT_CACHE_KEY);
+    if (cachedRootId) {
+      try {
+        const byId = await driveRequest<DriveItem>(
+          accessTokenX,
+          `https://www.googleapis.com/drive/v3/files/${cachedRootId}?fields=id,name,mimeType`
+        );
+        if (byId?.id && byId.mimeType === "application/vnd.google-apps.folder") {
+          return byId;
+        }
+      } catch {
+        localStorage.removeItem(ROOT_CACHE_KEY);
+      }
+    }
+
     // procurar pasta OrganizaApp na raiz do Drive
     const q =
       `mimeType='application/vnd.google-apps.folder' and ` +
@@ -264,7 +287,10 @@ export default function FilesPage() {
       )}&fields=files(id,name,mimeType)`
     );
 
-    if (search.files?.length) return search.files[0];
+    if (search.files?.length) {
+      localStorage.setItem(ROOT_CACHE_KEY, search.files[0].id);
+      return search.files[0];
+    }
 
     // criar pasta
     const created = await driveRequest<DriveItem>(
@@ -300,13 +326,14 @@ export default function FilesPage() {
       );
     }
 
+    localStorage.setItem(ROOT_CACHE_KEY, created.id);
     return created;
   }
 
-  async function loadMeta(ids: string[], uid: string) {
+  async function loadMeta(ids: string[], uid: string): Promise<Record<string, MetaRow>> {
     if (!ids.length) {
       setMetaMap({});
-      return;
+      return {};
     }
     const { data, error } = await supabase
       .from("drive_items")
@@ -319,14 +346,56 @@ export default function FilesPage() {
     if (error) throw new Error(error.message);
 
     const mm: Record<string, MetaRow> = {};
-    (data || []).forEach((row: any) => {
-      mm[row.drive_id] = row as MetaRow;
+    (data || []).forEach((row) => {
+      const typedRow = row as MetaRow;
+      mm[typedRow.drive_id] = typedRow;
+      ensuredMetaIdsRef.current.add(typedRow.drive_id);
     });
     setMetaMap(mm);
+    return mm;
+  }
+
+  async function ensureMissingMetaRows(list: DriveItem[], uid: string, parentId: string, parentColor: string) {
+    if (!uid || list.length === 0) return;
+
+    const missing = list.filter((it) => !ensuredMetaIdsRef.current.has(it.id));
+    if (missing.length === 0) return;
+
+    const baseRows = missing.map((it) => ({
+      user_id: uid,
+      drive_id: it.id,
+      kind: isFolder(it) ? "folder" : "file",
+      name: it.name,
+      parent_drive_id: parentId,
+      color: parentColor,
+      is_locked: false,
+      password_hash: null,
+      author: null,
+      priority: "Média",
+      icon_emoji: isFolder(it) ? "📁" : "📄",
+    }));
+
+    const { error } = await supabase.from("drive_items").upsert(baseRows, {
+      onConflict: "user_id,drive_id",
+      ignoreDuplicates: true,
+    });
+
+    if (!error) {
+      for (const row of baseRows) ensuredMetaIdsRef.current.add(row.drive_id);
+    }
   }
 
   async function loadList(folderIdX: string, accessTokenX: string, uid: string) {
-    setLoading(true);
+    const cacheKey = `${uid}:${folderIdX}`;
+    const cached = driveFolderCache.get(cacheKey);
+    const hasFreshCache = Boolean(cached && Date.now() - cached.ts < DRIVE_FOLDER_CACHE_TTL_MS);
+
+    if (hasFreshCache && cached) {
+      setItems(cached.items);
+      setMetaMap(cached.metaMap);
+    } else {
+      setLoading(true);
+    }
     setUiMsg("");
 
     try {
@@ -343,31 +412,12 @@ export default function FilesPage() {
 
       const list = res.files || [];
       setItems(list);
+      const ids = list.map((i) => i.id);
+      const mm = await loadMeta(ids, uid);
+      driveFolderCache.set(cacheKey, { ts: Date.now(), items: list, metaMap: mm });
 
-      // garantir meta no supabase apenas para itens novos (sem sobrescrever customizacoes)
-      if (uid && list.length) {
-        const parentColor = metaMap[folderIdX]?.color || "#7C3AED";
-        const baseRows = list.map((it) => ({
-            user_id: uid,
-            drive_id: it.id,
-            kind: isFolder(it) ? "folder" : "file",
-            name: it.name,
-            parent_drive_id: folderIdX,
-            color: parentColor,
-            is_locked: false,
-            password_hash: null,
-            author: null,
-            priority: "Média",
-            icon_emoji: isFolder(it) ? "📁" : "📄",
-          }));
-
-        await supabase.from("drive_items").upsert(baseRows, {
-          onConflict: "user_id,drive_id",
-          ignoreDuplicates: true,
-        });
-      }
-
-      await loadMeta(list.map((i) => i.id), uid);
+      const parentColor = mm[folderIdX]?.color || metaMap[folderIdX]?.color || "#7C3AED";
+      void ensureMissingMetaRows(list, uid, folderIdX, parentColor);
     } finally {
       setLoading(false);
     }
@@ -454,13 +504,15 @@ export default function FilesPage() {
         },
         { onConflict: "user_id,drive_id" }
       );
+      ensuredMetaIdsRef.current.add(created.id);
 
       setUiMsg(`✅ Pasta criada: ${created.name}`);
       setCreateFolderOpen(false);
       setNewFolderName("");
+      driveFolderCache.delete(`${userId}:${folderId}`);
       await loadList(folderId, accessToken, userId);
-    } catch (e: any) {
-      setUiMsg(`Erro ao criar pasta: ${e?.message || "erro"}`);
+    } catch (e: unknown) {
+      setUiMsg(`Erro ao criar pasta: ${e instanceof Error ? e.message : "erro"}`);
     } finally {
       setCreatingFolder(false);
     }
@@ -477,42 +529,21 @@ export default function FilesPage() {
     setUiMsg("");
 
     try {
-      // Upload multipart (metadata + file)
-      const boundary = "-------314159265358979323846";
-      const delimiter = `\r\n--${boundary}\r\n`;
-      const closeDelim = `\r\n--${boundary}--`;
+      const fd = new FormData();
+      fd.set("accessToken", accessToken);
+      fd.set("parentId", folderId || "root");
+      fd.set("file", file);
 
-      const metadata = {
-        name: file.name,
-        parents: [folderId],
-      };
+      const uploadRes = await fetch("/api/drive/upload", {
+        method: "POST",
+        body: fd,
+      });
+      const uploadData = await uploadRes.json().catch(() => ({}));
+      if (!uploadRes.ok) {
+        throw new Error(uploadData?.error?.error?.message || uploadData?.error?.message || "Erro no upload");
+      }
 
-      const fileData = await file.arrayBuffer();
-      const base64 = btoa(
-        new Uint8Array(fileData).reduce((data, byte) => data + String.fromCharCode(byte), "")
-      );
-
-      const multipartBody =
-        delimiter +
-        "Content-Type: application/json; charset=UTF-8\r\n\r\n" +
-        JSON.stringify(metadata) +
-        delimiter +
-        `Content-Type: ${file.type || "application/octet-stream"}\r\n` +
-        "Content-Transfer-Encoding: base64\r\n\r\n" +
-        base64 +
-        closeDelim;
-
-      const created = await driveRequest<DriveItem>(
-        accessToken,
-        "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,size,webViewLink,createdTime,modifiedTime",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": `multipart/related; boundary=${boundary}`,
-          },
-          body: multipartBody,
-        }
-      );
+      const created = uploadData as DriveItem;
 
       await supabase.from("drive_items").upsert(
         {
@@ -530,11 +561,13 @@ export default function FilesPage() {
         },
         { onConflict: "user_id,drive_id" }
       );
+      ensuredMetaIdsRef.current.add(created.id);
 
       setUiMsg(`✅ Upload OK: ${created.name}`);
+      driveFolderCache.delete(`${userId}:${folderId}`);
       await loadList(folderId, accessToken, userId);
-    } catch (e: any) {
-      setUiMsg(`Erro no upload: ${e?.message || "erro"}`);
+    } catch (e: unknown) {
+      setUiMsg(`Erro no upload: ${e instanceof Error ? e.message : "erro"}`);
     } finally {
       setLoading(false);
     }
@@ -549,7 +582,7 @@ export default function FilesPage() {
     setEditInitial({
       name: it.name,
       author: meta?.author || "",
-      priority: (meta?.priority as any) || "Média",
+      priority: meta?.priority || "Média",
       color: meta?.color || "#7C3AED",
       applyColorToChildren: isFolder(it),
       isLocked: !!meta?.is_locked,
@@ -587,7 +620,7 @@ export default function FilesPage() {
     }
 
     // 2) salvar metadados no Supabase
-    const updatePayload: any = {
+    const updatePayload: Record<string, string | boolean | null> = {
       name: values.name.trim(),
       author: values.author.trim() || null,
       priority: values.priority,
@@ -643,7 +676,7 @@ export default function FilesPage() {
           .in("parent_drive_id", frontier);
 
         if (childErr) throw new Error(childErr.message);
-        const childIds = (children || []).map((c: any) => c.drive_id as string);
+        const childIds = (children || []).map((c) => String(c.drive_id));
         if (!childIds.length) break;
 
         const { error: updErr } = await supabase
@@ -681,6 +714,7 @@ export default function FilesPage() {
     });
 
     // 3) recarregar listagem + meta
+    driveFolderCache.delete(`${userId}:${folderId}`);
     await loadList(folderId, accessToken, userId);
   }
 
@@ -761,6 +795,7 @@ export default function FilesPage() {
       setUiMsg(`✅ Item removido: ${deleteTarget.name}`);
       setDeleteOpen(false);
       setDeleteTarget(null);
+      driveFolderCache.delete(`${userId}:${folderId}`);
       await loadList(folderId, accessToken, userId);
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : "erro";

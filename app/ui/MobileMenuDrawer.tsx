@@ -13,6 +13,7 @@ const items = [
   { href: "/calendar", label: "Calendário", icon: "🗓️" },
   { href: "/financas", label: "Finanças", icon: "💲" },
   { href: "/ai", label: "Assistente IA", icon: "✨" },
+  { href: "/configuracao", label: "Configuração", icon: "⚙" },
 ];
 
 export default function MobileMenuDrawer({
