@@ -79,9 +79,9 @@ export async function POST(req: Request) {
       const settled = await Promise.allSettled(
         calendars.map((cal) => fetchEvents(cal.id, cal.summary))
       );
-      const merged = settled
-        .filter((r): r is PromiseFulfilledResult<Array<Record<string, unknown>>> => r.status === "fulfilled")
-        .flatMap((r) => r.value);
+      const merged = settled.flatMap((result) => (
+        result.status === "fulfilled" ? result.value : []
+      ));
 
       return NextResponse.json({ items: merged });
     } catch {
